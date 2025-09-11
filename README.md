@@ -1,6 +1,6 @@
 # Alas
 
-This template should help get you started developing with Vue 3 in Vite.
+Clonen el repositorio   `git clone https://github.com/Gaaab07/Alas.git`
 
 ## Recommended IDE Setup
 
@@ -25,6 +25,7 @@ npm install
 ```sh
 npm run dev
 ```
+### Por el momento lo de abajo no lo usen
 
 ### Type-Check, Compile and Minify for Production
 
