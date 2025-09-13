@@ -36,10 +36,14 @@
           </li>
         </ul>
       <form class="d-flex align-items-center">
+  <!-- Icono de búsqueda -->
+  <router-link to="/search" class="btn btn-outline-secondary me-2">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </router-link>
+
   <!-- Icono del carrito -->
   <router-link to="/cart" class="btn btn-outline-dark me-2 position-relative">
     <i class="fa-solid fa-cart-shopping"></i>
-    <!-- Badge con cantidad de productos -->
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">
       0
     </span>
@@ -50,6 +54,7 @@
     <i class="fa-solid fa-user"></i>
   </router-link>
 </form>
+
 
 
 
