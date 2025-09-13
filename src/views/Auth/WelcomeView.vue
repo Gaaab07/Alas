@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { supabase } from '../supabase'
+import { supabase } from '../../supabase'
 
 const userEmail = ref('')
 

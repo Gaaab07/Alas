@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import SignIn from '../views/SignIn.vue'  // <-- importa tu SignIn.vue
-import SignUpView from '../views/SignUp.vue' // <-- importa tu SignUp.vue
+import SignIn from '../views/Auth/SignIn.vue'  // <-- importa tu SignIn.vue
+import SignUpView from '../views/Auth/SignUp.vue' // <-- importa tu SignUp.vue
+import ShopView from '../views/Shop/ShopView.vue'
 const routes = [
   {
     path: '/',
@@ -8,25 +9,25 @@ const routes = [
     component: SignIn      
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue')
-  },
-  {
     path: '/welcome',
     name: 'welcome',
-    component: () => import('../views/WelcomeView.vue')
+    component: () => import('../views/Auth/WelcomeView.vue')
   },
   {
   path: '/auth/v1/callback',
   name: 'auth-callback',
-  component: () => import('../views/AuthCallback.vue')
+  component: () => import('../views/Auth/AuthCallback.vue')
   },
   {
   path: '/signup',
   name: 'signup',
   component: SignUpView
-}
+},
+  {
+    path: '/shop',
+    name: 'shop',
+    component: ShopView
+  }
 ]
 
 
