@@ -9,13 +9,26 @@
 
     <!-- Login con Email y Contraseña -->
     <form @submit.prevent="loginEmail">
-      <input v-model="email" type="email" placeholder="Correo electrónico" required />
-      <input v-model="password" type="password" placeholder="Contraseña" required />
+      <input 
+        v-model="email" 
+        type="email" 
+        placeholder="Correo electrónico" 
+        required 
+      />
+      <input 
+        v-model="password" 
+        type="password" 
+        placeholder="Contraseña" 
+        required 
+      />
       <button type="submit">Iniciar sesión</button>
     </form>
 
     <!-- Enlace a registro -->
-    <p>¿No tienes cuenta? <router-link to="/signup">Regístrate aquí</router-link></p>
+    <p>
+      ¿No tienes cuenta?
+      <router-link to="/signup">Regístrate aquí</router-link>
+    </p>
 
     <p v-if="mensaje">{{ mensaje }}</p>
   </div>
@@ -84,12 +97,14 @@ const loginEmail = async () => {
   text-align: center;
   margin-top: 50px;
 }
+
 input {
   display: block;
   margin: 10px auto;
   padding: 8px;
   width: 250px;
 }
+
 button {
   padding: 10px 20px;
   margin-top: 10px;
@@ -99,6 +114,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
 }
+
 button:hover {
   background-color: #357AE8;
 }

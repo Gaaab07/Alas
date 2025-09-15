@@ -35,7 +35,17 @@ const routes = [
     children: [
       { path: '', name: 'signup', component: SignUpView }
     ]
-  }
+  },
+  // {
+  // path: '/orders',
+  // component: () => import('@/views/Orders.vue'),
+  // meta: { requiresAuth: true }
+  // },
+  // {
+  // path: '/profile',
+  // component: () => import('@/views/Profile.vue'),
+  // meta: { requiresAuth: true }
+  // }
 ]
 
 const router = createRouter({

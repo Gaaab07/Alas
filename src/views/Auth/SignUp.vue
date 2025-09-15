@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { supabase } from '../../supabase'
+import '@/assets/styles/signup.css'   // ✅ importamos los estilos externos
 
 const email = ref('')
 const password = ref('')
@@ -30,51 +31,33 @@ const mensaje = ref('')
 
 const signupUser = async () => {
   try {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value
     })
 
     if (error) {
-      mensaje.value = '❌ Error: ' + error.message
+      if (error.message.includes('already registered')) {
+        mensaje.value = '⚠️ Este correo ya tiene una cuenta. Si la creaste con Google, inicia sesión con Google.'
+      } else {
+        mensaje.value = '❌ Error: ' + error.message
+      }
       console.error(error)
       return
     }
 
+    // Si ya existía pero con Google, supabase no da error → chequeo extra
+    if (data?.user?.identities?.length === 0) {
+      mensaje.value = '⚠️ Ya tienes una cuenta creada con este correo. Inicia sesión con Google.'
+      return
+    }
+
     mensaje.value = '✅ Registro exitoso. Por favor revisa tu correo para confirmar tu cuenta.'
-
- } catch (err: unknown) {
-  const errorMessage = err instanceof Error ? err.message : String(err)
-  mensaje.value = '❌ Error inesperado: ' + errorMessage
-  console.error(err)
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    mensaje.value = '❌ Error inesperado: ' + errorMessage
+    console.error(err)
+  }
 }
 
-}
 </script>
-
-<style scoped>
-.signup {
-  text-align: center;
-  margin-top: 50px;
-}
-form div {
-  margin-bottom: 15px;
-}
-input {
-  padding: 8px;
-  width: 250px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-button {
-  padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #388e3c;
-}
-</style>
