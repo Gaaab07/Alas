@@ -1,0 +1,61 @@
+/* Navbar styles - Logo centrado */
+
+/* Logo centrado a la misma altura que los elementos */
+.navbar-brand-centered {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+  color: #212529 !important;
+  transition: all 0.3s ease;
+}
+
+/* Efecto hover del logo */
+.navbar-brand-centered:hover {
+  color: #0d6efd !important;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Responsive para móviles */
+@media (max-width: 991.98px) {
+  .navbar-brand-centered {
+    position: static !important;
+    transform: none !important;
+    margin: 0 auto;
+    display: block;
+    text-align: center;
+  }
+  
+  .navbar-brand-centered:hover {
+    transform: none !important;
+  }
+  
+  .navbar-toggler {
+    order: -1;
+  }
+  
+  .d-flex {
+    order: 1;
+  }
+}
+
+/* Estilos adicionales para mejorar la apariencia */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Mejorar los botones del navbar */
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover,
+.btn-outline-primary:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Badge del carrito */
+.badge {
+  font-size: 0.7em;
+}
