@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
 // Layouts
 import DefaultLayout from '../layouts/DefaultLayout.vue'
@@ -17,7 +18,27 @@ const routes = [
     children: [
       { path: '', name: 'shop', component: ShopView },
       { path: 'welcome', name: 'welcome', component: () => import('../views/Auth/WelcomeView.vue') },
-      { path: 'auth/v1/callback', name: 'auth-callback', component: () => import('../views/Auth/AuthCallback.vue') }
+      { path: 'auth/v1/callback', name: 'auth-callback', component: () => import('../views/Auth/AuthCallback.vue') },
+
+      // Ejemplo de rutas protegidas
+      { 
+        path: 'orders',
+        name: 'orders',
+        component: () => import('../views/OrdersView.vue'),
+        meta: { requiresAuth: true } // 👈 requiere login
+      },
+      { 
+        path: 'profile',
+        name: 'profile',
+        component: () => import('../views/ProfileView.vue'),
+        meta: { requiresAuth: true } // 👈 requiere login
+      },
+      { 
+        path: 'admin',
+        name: 'admin',
+        component: () => import('../views/AdminView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true } // 👈 requiere admin
+      }
     ]
   },
 
@@ -35,22 +56,30 @@ const routes = [
     children: [
       { path: '', name: 'signup', component: SignUpView }
     ]
-  },
-  // {
-  // path: '/orders',
-  // component: () => import('@/views/Orders.vue'),
-  // meta: { requiresAuth: true }
-  // },
-  // {
-  // path: '/profile',
-  // component: () => import('@/views/Profile.vue'),
-  // meta: { requiresAuth: true }
-  // }
+  }
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
+
+router.beforeEach(async (to, _from, next) => {
+  const { isAuthenticated, isAdmin, loadUser } = useAuth()
+
+  // 🔹 Aseguramos que el usuario y perfil estén cargados
+  await loadUser()
+
+  if (to.meta.requiresAuth && !isAuthenticated.value) {
+    return next({ name: 'signin' })
+  }
+
+  if (to.meta.requiresAdmin && !isAdmin.value) {
+    return next({ name: 'shop' }) // redirigir si no es admin
+  }
+
+  next()
+})
+
 
 export default router
