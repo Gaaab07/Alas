@@ -1,5 +1,5 @@
 // composables/useAuth.ts
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { supabase } from '@/supabase'
 import type { User } from '@supabase/supabase-js'
 
@@ -10,35 +10,81 @@ type Profile = {
   role: 'admin' | 'customer' | null
 }
 
+// ✅ SINGLETONS - se crean solo una vez
 const user = ref<User | null>(null)
 const profile = ref<Profile | null>(null)
+const isInitialized = ref(false)
+
+// Función para inicializar una sola vez
+const initializeAuth = async () => {
+  if (isInitialized.value) return
+
+  // Cargar usuario inicial
+  const { data } = await supabase.auth.getUser()
+  if (data.user) {
+    user.value = data.user
+    await getProfile()
+  }
+
+  // Configurar listener una sola vez
+  supabase.auth.onAuthStateChange(async (_event, session) => {
+    user.value = session?.user || null
+    profile.value = null // Limpiar perfil cuando cambie el usuario
+    
+    if (user.value) {
+      await getProfile()
+    }
+  })
+
+  isInitialized.value = true
+}
+
+const getProfile = async () => {
+  if (!user.value) {
+    profile.value = null
+    return null
+  }
+
+  console.log('Cargando perfil para usuario:', user.value.id)
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.value.id)
+    .single<Profile>()
+
+  console.log('Resultado getProfile:', { data, error })
+
+  if (error) {
+    console.error('Error cargando perfil:', error)
+    profile.value = null
+    return null
+  }
+
+  if (data) {
+    profile.value = data
+    console.log('Perfil cargado exitosamente:', data)
+  }
+  
+  return data
+}
 
 export const useAuth = () => {
+  // Inicializar solo la primera vez
+  if (!isInitialized.value) {
+    initializeAuth()
+  }
+
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => profile.value?.role === 'admin')
   const isCustomer = computed(() => profile.value?.role === 'customer')
-
-  const getProfile = async () => {
-    if (!user.value) return null
-    
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.value.id)
-      .single<Profile>() // 👈 tipado aquí
-    
-    if (!error && data) {
-      profile.value = data
-    }
-    return data
-  }
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
-    
+
     if (!error && data.user) {
       user.value = data.user
       await getProfile()
@@ -75,14 +121,6 @@ export const useAuth = () => {
       await getProfile()
     }
   }
-
-  onMounted(() => {
-    loadUser()
-    supabase.auth.onAuthStateChange((_event, session) => {
-      user.value = session?.user || null
-      if (user.value) getProfile()
-    })
-  })
 
   return {
     user,

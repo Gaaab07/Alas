@@ -24,21 +24,28 @@ const routes = [
       { 
         path: 'orders',
         name: 'orders',
-        component: () => import('../views/OrdersView.vue'),
+        component: () => import('../views/admin/OrdersView.vue'),
         meta: { requiresAuth: true } // 👈 requiere login
       },
       { 
         path: 'profile',
         name: 'profile',
-        component: () => import('../views/ProfileView.vue'),
+        component: () => import('../views/user/ProfileView.vue'),
         meta: { requiresAuth: true } // 👈 requiere login
       },
       { 
         path: 'admin',
         name: 'admin',
-        component: () => import('../views/AdminView.vue'),
+        component: () => import('../views/admin/AdminView.vue'),
         meta: { requiresAuth: true, requiresAdmin: true } // 👈 requiere admin
+      },
+      {
+      path: '/admin/products',
+      name: 'admin-products',
+      component: () => import('@/views/admin/AdminProductsView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true } // Solo admins
       }
+
     ]
   },
 

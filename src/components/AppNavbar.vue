@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light w-100">
     <div class="container-fluid px-4 px-lg-5">
-      <a class="navbar-brand fw-bold text-primary" href="#">ALAS®</a>
+      <router-link to="/" class="navbar-brand fw-bold text-primary text-decoration-none">ALAS®</router-link>
       
       <button
         class="navbar-toggler"
@@ -19,16 +19,16 @@
         <!-- Menú principal centrado -->
         <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link text-muted" href="#">INICIO</a>
+            <router-link to="/" class="nav-link text-muted">INICIO</router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="#">TIENDA</a>
+            <router-link to="/shop" class="nav-link text-muted">TIENDA</router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="#">COLECCIONES</a>
+            <router-link to="/collections" class="nav-link text-muted">COLECCIONES</router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-muted" href="#">CONOCENOS</a>
+            <router-link to="/about" class="nav-link text-muted">CONOCENOS</router-link>
           </li>
         </ul>
         
@@ -52,13 +52,13 @@
           </router-link>
           
           <!-- Dropdown de usuario -->
-          <div class="dropdown me-2">
+          <div class="dropdown me-2" ref="userDropdownRef">
             <button 
               class="btn btn-link text-dark p-2 border-0" 
               type="button" 
               data-bs-toggle="dropdown" 
               aria-expanded="false"
-              @click="checkUserSession"
+              ref="dropdownToggleRef"
             >
               <i class="fa-solid fa-user"></i>
             </button>
@@ -96,7 +96,7 @@
             <!-- Dropdown menu para usuario autenticado -->
             <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 300px;" v-else>
               <div class="text-center">
-                <h6 class="mb-3">¡Hola, {{ userName }}!</h6>
+                <h6 class="mb-3">¡Hola, {{ displayName }}!</h6>
                 <div class="d-flex justify-content-between mb-3">
                   <button 
                     class="btn btn-outline-primary flex-fill me-1"
@@ -135,40 +135,82 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '../supabase' // Ajusta la ruta según tu estructura
+import { useAuth } from '@/composables/useAuth' // Ajusta la ruta según tu estructura
 
 const router = useRouter()
 
-// Estados reactivos
-const isAuthenticated = ref(false)
-const userName = ref('')
+// Referencias del template
+const userDropdownRef = ref<HTMLElement>()
+const dropdownToggleRef = ref<HTMLElement>()
+
+// Usar el composable de autenticación
+const { user, profile, isAuthenticated, signOut } = useAuth()
+
+// Estados locales que no están relacionados con autenticación
 const cartItemsCount = ref(0)
 
-// Verificar sesión del usuario
-const checkUserSession = async () => {
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error) {
-      console.error('Error checking user session:', error)
-      isAuthenticated.value = false
-      return
-    }
+// Nombre a mostrar - computed para que sea reactivo
+const displayName = computed(() => {
+  if (profile.value?.full_name) {
+    return profile.value.full_name
+  }
+  // Si no hay profile pero hay user, usar el email
+  if (user.value?.email) {
+    return user.value.email.split('@')[0]
+  }
+  return 'Usuario'
+})
 
-    if (user) {
-      isAuthenticated.value = true
-      // Obtener nombre del usuario (puedes ajustar según tus datos)
-      userName.value = user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario'
-    } else {
-      isAuthenticated.value = false
+// Declarar tipos para Bootstrap
+declare global {
+  interface Window {
+    bootstrap?: {
+      Dropdown: {
+        getInstance: (element: HTMLElement) => { dispose: () => void } | null
+        new (element: HTMLElement): void
+      }
     }
-  } catch (err) {
-    console.error('Error:', err)
-    isAuthenticated.value = false
   }
 }
+
+// Función para reinicializar el dropdown de Bootstrap
+const reinitializeDropdown = async () => {
+  await nextTick()
+  
+  if (dropdownToggleRef.value) {
+    try {
+      // Forzar que se limpien todos los estados
+      const allDropdowns = document.querySelectorAll('.dropdown-menu.show')
+      allDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('show')
+      })
+      
+      const allButtons = document.querySelectorAll('[data-bs-toggle="dropdown"].show')
+      allButtons.forEach(button => {
+        button.classList.remove('show')
+        button.setAttribute('aria-expanded', 'false')
+      })
+      
+      // Reinicializar el dropdown si Bootstrap está disponible
+      if (typeof window !== 'undefined' && window.bootstrap?.Dropdown) {
+        const existingDropdown = window.bootstrap.Dropdown.getInstance(dropdownToggleRef.value)
+        if (existingDropdown) {
+          existingDropdown.dispose()
+        }
+        new window.bootstrap.Dropdown(dropdownToggleRef.value)
+      }
+    } catch (error) {
+      console.log('Dropdown reinitialize:', error)
+    }
+  }
+}
+
+// Watcher para reinicializar dropdown cuando cambie el estado de autenticación
+watch(isAuthenticated, () => {
+  reinitializeDropdown()
+})
 
 // Redirigir a SignIn
 const redirectToSignIn = () => {
@@ -178,64 +220,42 @@ const redirectToSignIn = () => {
 // Ir a pedidos
 const goToOrders = () => {
   router.push('/orders')
-  // Cerrar dropdown manualmente si es necesario
-  const dropdownEl = document.querySelector('.dropdown-menu.show')
-  if (dropdownEl) {
-    dropdownEl.classList.remove('show')
-  }
+  closeDropdown()
 }
 
 // Ir a perfil
 const goToProfile = () => {
   router.push('/profile')
-  // Cerrar dropdown manualmente si es necesario
+  closeDropdown()
+}
+
+// Cerrar sesión usando el composable
+const logout = async () => {
+  try {
+    await signOut()
+    router.push('/')
+    closeDropdown()
+    // Reinicializar dropdown después del logout
+    await reinitializeDropdown()
+  } catch (error) {
+    console.error('Error during logout:', error)
+  }
+}
+
+// Función helper para cerrar dropdown
+const closeDropdown = () => {
   const dropdownEl = document.querySelector('.dropdown-menu.show')
   if (dropdownEl) {
     dropdownEl.classList.remove('show')
   }
-}
-
-// Cerrar sesión
-const logout = async () => {
-  try {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('Error logging out:', error)
-      return
-    }
-    
-    isAuthenticated.value = false
-    userName.value = ''
-    
-    // Redirigir al inicio
-    router.push('/')
-    
-    // Cerrar dropdown
-    const dropdownEl = document.querySelector('.dropdown-menu.show')
-    if (dropdownEl) {
-      dropdownEl.classList.remove('show')
-    }
-  } catch (err) {
-    console.error('Error during logout:', err)
+  
+  // También remover la clase show del botón
+  const dropdownButton = document.querySelector('[data-bs-toggle="dropdown"].show')
+  if (dropdownButton) {
+    dropdownButton.classList.remove('show')
+    dropdownButton.setAttribute('aria-expanded', 'false')
   }
 }
-
-// Escuchar cambios en la autenticación
-onMounted(() => {
-  // Verificar sesión inicial
-  checkUserSession()
-  
-  // Escuchar cambios de autenticación
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      isAuthenticated.value = true
-      userName.value = session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario'
-    } else if (event === 'SIGNED_OUT') {
-      isAuthenticated.value = false
-      userName.value = ''
-    }
-  })
-})
 </script>
 
 <style scoped>
