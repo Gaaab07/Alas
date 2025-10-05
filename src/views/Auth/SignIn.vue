@@ -36,8 +36,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { supabase } from '../../supabase'
 
+const router = useRouter()
 const mensaje = ref('')
 const email = ref('')
 const password = ref('')
@@ -82,8 +84,9 @@ const loginEmail = async () => {
     }
 
     mensaje.value = '✅ Inicio de sesión exitoso'
-    // Redirigir al welcome
-    window.location.href = '/welcome'
+    
+    // Redirigir al inicio usando el router de Vue
+    await router.push('/')
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     mensaje.value = '❌ Error inesperado: ' + errorMessage

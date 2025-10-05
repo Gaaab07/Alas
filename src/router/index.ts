@@ -20,32 +20,31 @@ const routes = [
       { path: 'welcome', name: 'welcome', component: () => import('../views/Auth/WelcomeView.vue') },
       { path: 'auth/v1/callback', name: 'auth-callback', component: () => import('../views/Auth/AuthCallback.vue') },
 
-      // Ejemplo de rutas protegidas
+      // Rutas protegidas
       { 
         path: 'orders',
         name: 'orders',
         component: () => import('../views/admin/OrdersView.vue'),
-        meta: { requiresAuth: true } // 👈 requiere login
+        meta: { requiresAuth: true }
       },
       { 
         path: 'profile',
         name: 'profile',
         component: () => import('../views/user/ProfileView.vue'),
-        meta: { requiresAuth: true } // 👈 requiere login
+        meta: { requiresAuth: true }
       },
       { 
         path: 'admin',
         name: 'admin',
         component: () => import('../views/admin/AdminView.vue'),
-        meta: { requiresAuth: true, requiresAdmin: true } // 👈 requiere admin
+        meta: { requiresAuth: true, requiresAdmin: true }
       },
       {
-      path: '/admin/products',
-      name: 'admin-products',
-      component: () => import('@/views/admin/AdminProductsView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true } // Solo admins
+        path: 'admin/products',
+        name: 'admin-products',
+        component: () => import('@/views/admin/AdminProductsView.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       }
-
     ]
   },
 
@@ -72,21 +71,56 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, _from, next) => {
-  const { isAuthenticated, isAdmin, loadUser } = useAuth()
+  console.log('🛣️ Navegando a:', to.path, 'Meta:', to.meta)
+  
+  const { isAuthenticated, isAdmin, loadUser, profile, isLoadingProfile } = useAuth()
 
-  // 🔹 Aseguramos que el usuario y perfil estén cargados
+  // Recargar usuario y perfil primero
   await loadUser()
 
+  // Esperar hasta 2 segundos a que se cargue el perfil
+  let attempts = 0
+  while (isLoadingProfile.value && attempts < 20) {
+    console.log('⏳ Esperando carga de perfil... intento', attempts + 1)
+    await new Promise(resolve => setTimeout(resolve, 100))
+    attempts++
+  }
+
+  // Si requiere auth pero no está autenticado
   if (to.meta.requiresAuth && !isAuthenticated.value) {
+    console.log('❌ Ruta requiere autenticación, redirigiendo a signin')
     return next({ name: 'signin' })
   }
 
-  if (to.meta.requiresAdmin && !isAdmin.value) {
-    return next({ name: 'shop' }) // redirigir si no es admin
+  // Si requiere admin, esperar a que el perfil esté cargado
+  if (to.meta.requiresAdmin) {
+    // Dar un momento extra para asegurar que el perfil se cargó
+    if (!profile.value) {
+      console.log('⚠️ Perfil no cargado, esperando...')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await loadUser()
+    }
+
+    console.log('🔍 Estado auth completo:', {
+      isAuthenticated: isAuthenticated.value,
+      isAdmin: isAdmin.value,
+      role: profile.value?.role,
+      profileId: profile.value?.id,
+      requiresAuth: to.meta.requiresAuth,
+      requiresAdmin: to.meta.requiresAdmin
+    })
+
+    if (!isAdmin.value) {
+      console.log('❌ Ruta requiere admin. Usuario no es admin:', {
+        role: profile.value?.role,
+        profile: profile.value
+      })
+      return next({ name: 'shop' })
+    }
   }
 
+  console.log('✅ Acceso permitido a', to.path)
   next()
 })
-
 
 export default router

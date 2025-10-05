@@ -2,13 +2,31 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-
 import App from './App.vue'
 import router from './router'
+import { useAuth } from '@/composables/useAuth'
 
-const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
-app.use(router)
+// Función async para inicializar
+async function initApp() {
+  console.log('🚀 Inicializando aplicación...')
+  
+  const app = createApp(App)
+  
+  app.use(pinia)
+  
+  // Inicializar auth ANTES de usar el router
+  const { loadUser } = useAuth()
+  await loadUser()
+  
+  console.log('✅ Auth inicializado, montando app...')
+  
+  app.use(router)
+  app.mount('#app')
+  
+  console.log('✅ Aplicación montada')
+}
 
-app.mount('#app')
+// Iniciar la app
+initApp()

@@ -30,6 +30,13 @@
           <li class="nav-item">
             <router-link to="/about" class="nav-link text-muted">CONOCENOS</router-link>
           </li>
+          
+          <!-- Botón Admin - Solo visible para administradores -->
+          <li class="nav-item" v-if="isAdmin">
+            <router-link to="/admin/products" class="nav-link text-warning fw-bold">
+              <i class="fa-solid fa-gear"></i> PANEL ADMIN
+            </router-link>
+          </li>
         </ul>
         
         <!-- Sección derecha con idioma, búsqueda, usuario y carrito -->
@@ -54,13 +61,17 @@
           <!-- Dropdown de usuario -->
           <div class="dropdown me-2" ref="userDropdownRef">
             <button 
-              class="btn btn-link text-dark p-2 border-0" 
+              class="btn btn-link text-dark p-2 border-0 position-relative" 
               type="button" 
               data-bs-toggle="dropdown" 
               aria-expanded="false"
               ref="dropdownToggleRef"
             >
               <i class="fa-solid fa-user"></i>
+              <!-- Badge de Admin -->
+              <span v-if="isAdmin" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">
+                A
+              </span>
             </button>
             
             <!-- Dropdown menu para usuario no autenticado -->
@@ -96,7 +107,21 @@
             <!-- Dropdown menu para usuario autenticado -->
             <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 300px;" v-else>
               <div class="text-center">
-                <h6 class="mb-3">¡Hola, {{ displayName }}!</h6>
+                <h6 class="mb-2">¡Hola, {{ displayName }}!</h6>
+                <!-- Badge de rol Admin -->
+                <span v-if="isAdmin" class="badge bg-warning text-dark mb-3">
+                  <i class="fa-solid fa-crown me-1"></i> Administrador
+                </span>
+                
+                <!-- Botón destacado de Panel Admin -->
+                <button 
+                  v-if="isAdmin"
+                  class="btn btn-warning w-100 mb-3 fw-bold"
+                  @click="goToAdminPanel"
+                >
+                  <i class="fa-solid fa-gear me-1"></i> Panel de Administración
+                </button>
+                
                 <div class="d-flex justify-content-between mb-3">
                   <button 
                     class="btn btn-outline-primary flex-fill me-1"
@@ -137,7 +162,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth' // Ajusta la ruta según tu estructura
+import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
 
@@ -146,7 +171,7 @@ const userDropdownRef = ref<HTMLElement>()
 const dropdownToggleRef = ref<HTMLElement>()
 
 // Usar el composable de autenticación
-const { user, profile, isAuthenticated, signOut } = useAuth()
+const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
 
 // Estados locales que no están relacionados con autenticación
 const cartItemsCount = ref(0)
@@ -215,6 +240,12 @@ watch(isAuthenticated, () => {
 // Redirigir a SignIn
 const redirectToSignIn = () => {
   router.push('/signin')
+}
+
+// Ir a panel admin
+const goToAdminPanel = () => {
+  router.push('/admin/products')
+  closeDropdown()
 }
 
 // Ir a pedidos
@@ -306,5 +337,30 @@ const closeDropdown = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Estilos especiales para elementos admin */
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #ffca2c;
+  border-color: #ffc720;
+}
+
+/* Animación suave para el nav-link */
+.nav-link {
+  transition: color 0.3s ease;
+}
+
+.nav-link.text-warning:hover {
+  color: #ffca2c !important;
 }
 </style>
