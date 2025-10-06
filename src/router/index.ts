@@ -19,7 +19,11 @@ const routes = [
       { path: '', name: 'shop', component: ShopView },
       { path: 'welcome', name: 'welcome', component: () => import('../views/Auth/WelcomeView.vue') },
       { path: 'auth/v1/callback', name: 'auth-callback', component: () => import('../views/Auth/AuthCallback.vue') },
-
+      {
+      path: 'product/:id',
+      name: 'product-detail',
+      component: () => import('@/views/Shop/ProductDetailView.vue')
+      },
       // Rutas protegidas
       { 
         path: 'orders',

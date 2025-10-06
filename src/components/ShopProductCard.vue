@@ -6,15 +6,18 @@
         {{ stock < 5 ? 'Stock bajo' : 'Oferta' }}
       </div>
       
-      <!-- Imagen del producto -->
-      <img 
-        class="card-img-top" 
-        :src="image_url || 'https://dummyimage.com/450x300/dee2e6/6c757d.jpg'" 
-        :alt="name"
-        style="height: 300px; object-fit: cover;"
-      />
+      <!-- Imagen del producto - clickeable para ir al detalle -->
+      <div class="image-wrapper" @click="goToDetail">
+        <img 
+          class="card-img-top"
+          :src="image_url || 'https://dummyimage.com/450x300/dee2e6/6c757d.jpg'"
+          :alt="name"
+          style="height: 300px; object-fit: cover;"
+        />
+      </div>
       
-      <div class="card-body p-4">
+      <!-- Contenido del card - clickeable para ir al detalle -->
+      <div class="card-body p-4" @click="goToDetail" style="cursor: pointer;">
         <div class="text-center">
           <!-- Nombre del producto -->
           <h5 class="fw-bolder">{{ name }}</h5>
@@ -50,11 +53,20 @@
       
       <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
         <div class="text-center">
+          <!-- Botón Ver Detalles -->
+          <button 
+            class="btn btn-outline-primary w-100 mb-2"
+            @click="goToDetail"
+          >
+            <i class="bi bi-eye me-2"></i>Ver Detalles
+          </button>
+          
+          <!-- Botón Añadir al carrito -->
           <button 
             class="btn mt-auto w-100"
             :class="stock > 0 ? 'btn-outline-dark' : 'btn-secondary'"
             :disabled="stock === 0"
-            @click="handleAddToCart"
+            @click.stop="handleAddToCart"
           >
             {{ stock > 0 ? 'Añadir al carrito' : 'Sin stock' }}
           </button>
@@ -66,6 +78,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Props que coinciden exactamente con tu tabla de productos
 const props = defineProps<{
@@ -79,6 +92,8 @@ const props = defineProps<{
   color?: string | null
   image_url?: string | null
 }>()
+
+const router = useRouter()
 
 // Computed properties
 const formattedPrice = computed(() => {
@@ -95,7 +110,7 @@ const showSaleBadge = computed(() => {
 const truncatedDescription = computed(() => {
   if (!props.description) return ''
   return props.description.length > 80 
-    ? props.description.substring(0, 80) + '...' 
+    ? props.description.substring(0, 80) + '...'
     : props.description
 })
 
@@ -103,6 +118,11 @@ const truncatedDescription = computed(() => {
 const emit = defineEmits<{
   addToCart: [productId: string]
 }>()
+
+// Navegar al detalle del producto
+const goToDetail = () => {
+  router.push({ name: 'product-detail', params: { id: props.id } })
+}
 
 const handleAddToCart = () => {
   if (props.stock > 0) {
@@ -121,12 +141,31 @@ const handleAddToCart = () => {
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
+.image-wrapper {
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  transition: transform 0.3s ease;
+}
+
+.image-wrapper:hover img {
+  transform: scale(1.05);
+}
+
 .btn:disabled {
   cursor: not-allowed;
 }
 
 .badge {
   z-index: 10;
+}
+
+/* Efecto hover en el botón Ver Detalles */
+.btn-outline-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
 }
 
 /* Estilos responsive */
