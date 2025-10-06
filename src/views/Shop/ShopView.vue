@@ -43,7 +43,6 @@
               :size="product.size"
               :color="product.color"
               :image_url="product.image_url"
-              @add-to-cart="(productId) => console.log('Producto añadido:', productId)"
             />
           </div>
         </div>

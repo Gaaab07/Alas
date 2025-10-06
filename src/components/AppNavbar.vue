@@ -146,25 +146,35 @@
             </div>
           </div>
           
-          <!-- Icono del carrito -->
-          <router-link to="/cart" class="btn btn-link text-dark p-2 position-relative">
+          <!-- Botón del carrito - AHORA ABRE EL SIDEBAR -->
+          <button 
+            @click="cartStore.toggleCart()"
+            class="btn btn-link text-dark p-2 position-relative"
+            type="button"
+          >
             <i class="fa-solid fa-shopping-cart"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" v-if="cartItemsCount > 0">
-              {{ cartItemsCount }}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" v-if="cartStore.itemsCount > 0">
+              {{ cartStore.itemsCount }}
             </span>
-          </router-link>
+          </button>
         </div>
       </div>
     </div>
   </nav>
+
+  <!-- Cart Sidebar Component -->
+  <CartSidebar />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useCartStore } from '@/stores/cart'
+import CartSidebar from './CartSidebar.vue'
 
 const router = useRouter()
+const cartStore = useCartStore()
 
 // Referencias del template
 const userDropdownRef = ref<HTMLElement>()
@@ -173,15 +183,11 @@ const dropdownToggleRef = ref<HTMLElement>()
 // Usar el composable de autenticación
 const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
 
-// Estados locales que no están relacionados con autenticación
-const cartItemsCount = ref(0)
-
 // Nombre a mostrar - computed para que sea reactivo
 const displayName = computed(() => {
   if (profile.value?.full_name) {
     return profile.value.full_name
   }
-  // Si no hay profile pero hay user, usar el email
   if (user.value?.email) {
     return user.value.email.split('@')[0]
   }
@@ -206,7 +212,6 @@ const reinitializeDropdown = async () => {
   
   if (dropdownToggleRef.value) {
     try {
-      // Forzar que se limpien todos los estados
       const allDropdowns = document.querySelectorAll('.dropdown-menu.show')
       allDropdowns.forEach(dropdown => {
         dropdown.classList.remove('show')
@@ -218,7 +223,6 @@ const reinitializeDropdown = async () => {
         button.setAttribute('aria-expanded', 'false')
       })
       
-      // Reinicializar el dropdown si Bootstrap está disponible
       if (typeof window !== 'undefined' && window.bootstrap?.Dropdown) {
         const existingDropdown = window.bootstrap.Dropdown.getInstance(dropdownToggleRef.value)
         if (existingDropdown) {
@@ -266,7 +270,6 @@ const logout = async () => {
     await signOut()
     router.push('/')
     closeDropdown()
-    // Reinicializar dropdown después del logout
     await reinitializeDropdown()
   } catch (error) {
     console.error('Error during logout:', error)
@@ -280,7 +283,6 @@ const closeDropdown = () => {
     dropdownEl.classList.remove('show')
   }
   
-  // También remover la clase show del botón
   const dropdownButton = document.querySelector('[data-bs-toggle="dropdown"].show')
   if (dropdownButton) {
     dropdownButton.classList.remove('show')
@@ -323,13 +325,11 @@ const closeDropdown = () => {
   transform: translateY(-1px);
 }
 
-/* Estilos para botones deshabilitados */
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Badge del carrito */
 .badge {
   font-size: 0.7rem;
   min-width: 18px;
@@ -339,7 +339,6 @@ const closeDropdown = () => {
   justify-content: center;
 }
 
-/* Estilos especiales para elementos admin */
 .text-warning {
   color: #ffc107 !important;
 }
@@ -355,7 +354,6 @@ const closeDropdown = () => {
   border-color: #ffc720;
 }
 
-/* Animación suave para el nav-link */
 .nav-link {
   transition: color 0.3s ease;
 }

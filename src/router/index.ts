@@ -24,6 +24,12 @@ const routes = [
       name: 'product-detail',
       component: () => import('@/views/Shop/ProductDetailView.vue')
       },
+      {
+      path: '/checkout',
+      name: 'checkout',
+      component: () => import('@/views/Shop/CheckoutView.vue'),
+      meta: { requiresAuth: false }
+      },
       // Rutas protegidas
       { 
         path: 'orders',

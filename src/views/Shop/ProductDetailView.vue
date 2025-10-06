@@ -124,10 +124,16 @@
             <button 
               class="btn btn-primary btn-lg w-100 mb-3"
               @click="addToCart"
-              :disabled="!selectedSize || product.stock === 0"
+              :disabled="!selectedSize || product.stock === 0 || isAdding"
             >
-              <i class="bi bi-cart-plus me-2"></i>
-              {{ product.stock === 0 ? 'Agotado' : 'COMPRAR AHORA' }}
+              <span v-if="isAdding">
+                <i class="bi bi-hourglass-split me-2"></i>
+                Añadiendo...
+              </span>
+              <span v-else>
+                <i class="bi bi-cart-plus me-2"></i>
+                {{ product.stock === 0 ? 'Agotado' : 'COMPRAR AHORA' }}
+              </span>
             </button>
             
             <button class="btn btn-outline-secondary btn-lg w-100">
@@ -137,10 +143,12 @@
           </div>
 
           <!-- Mensaje de éxito -->
-          <div v-if="showSuccessMessage" class="alert alert-success-custom mt-3">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            Producto agregado al carrito
-          </div>
+          <Transition name="fade">
+            <div v-if="showSuccessMessage" class="alert alert-success-custom mt-3">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              {{ quantity > 1 ? `${quantity} productos agregados` : 'Producto agregado' }} al carrito
+            </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -151,27 +159,19 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/supabase'
+import { useCartStore } from '@/stores/cart'
+import type { Product } from '@/types/product'
 import '@/assets/styles/product-detail.css'
 
-interface Product {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  stock: number
-  category: string
-  size: string | null
-  color: string | null
-  image_url: string | null
-}
-
 const route = useRoute()
+const cartStore = useCartStore()
 
 const product = ref<Product | null>(null)
 const loading = ref(true)
 const selectedSize = ref('')
 const quantity = ref(1)
 const showSuccessMessage = ref(false)
+const isAdding = ref(false)
 
 const availableSizes = ref(['XS', 'S', 'M', 'L'])
 
@@ -213,22 +213,31 @@ const decreaseQuantity = () => {
   }
 }
 
-const addToCart = () => {
+const addToCart = async () => {
   if (!selectedSize.value) {
     alert('Por favor selecciona una talla')
     return
   }
 
-  console.log('Agregando al carrito:', {
-    product: product.value,
-    size: selectedSize.value,
-    quantity: quantity.value
-  })
+  if (!product.value) return
 
+  isAdding.value = true
+
+  // Añadir al carrito usando el store
+  cartStore.addItem(product.value, quantity.value)
+
+  // Mostrar mensaje de éxito
   showSuccessMessage.value = true
+
+  // Simular un pequeño delay
   setTimeout(() => {
-    showSuccessMessage.value = false
-  }, 3000)
+    isAdding.value = false
+    
+    // Ocultar mensaje después de 3 segundos
+    setTimeout(() => {
+      showSuccessMessage.value = false
+    }, 3000)
+  }, 500)
 }
 
 const handleImageError = (event: Event) => {
@@ -240,3 +249,14 @@ onMounted(() => {
   fetchProduct()
 })
 </script>
+
+<style scoped>
+/* Animación para el mensaje de éxito */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

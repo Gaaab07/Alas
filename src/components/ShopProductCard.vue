@@ -1,12 +1,19 @@
 <template>
   <div class="col mb-5">
     <div class="card h-100">
-      <!-- Sale badge - se muestra si hay stock bajo o está en oferta -->
+      <!-- Sale badge -->
       <div v-if="showSaleBadge" class="badge bg-dark text-white position-absolute" style="top: 0.5rem; right: 0.5rem">
         {{ stock < 5 ? 'Stock bajo' : 'Oferta' }}
       </div>
       
-      <!-- Imagen del producto - clickeable para ir al detalle -->
+      <!-- Added to cart badge -->
+      <Transition name="badge-pop">
+        <div v-if="showAddedBadge" class="badge bg-success text-white position-absolute" style="top: 0.5rem; left: 0.5rem">
+          <i class="fa-solid fa-check me-1"></i> Añadido
+        </div>
+      </Transition>
+      
+      <!-- Imagen del producto -->
       <div class="image-wrapper" @click="goToDetail">
         <img 
           class="card-img-top"
@@ -16,21 +23,16 @@
         />
       </div>
       
-      <!-- Contenido del card - clickeable para ir al detalle -->
+      <!-- Contenido del card -->
       <div class="card-body p-4" @click="goToDetail" style="cursor: pointer;">
         <div class="text-center">
-          <!-- Nombre del producto -->
           <h5 class="fw-bolder">{{ name }}</h5>
-          
-          <!-- Categoría -->
           <p class="text-muted small mb-2">{{ category }}</p>
           
-          <!-- Descripción (si existe) -->
           <p v-if="description" class="card-text small text-muted mb-2">
             {{ truncatedDescription }}
           </p>
           
-          <!-- Detalles del producto (talla y color) -->
           <div v-if="size || color" class="mb-2">
             <small class="text-muted">
               <span v-if="size">Talla: {{ size }}</span>
@@ -39,12 +41,10 @@
             </small>
           </div>
           
-          <!-- Precio -->
           <div class="fw-bolder text-primary fs-5">
             {{ formattedPrice }}
           </div>
           
-          <!-- Stock disponible -->
           <small class="text-muted">
             {{ stock > 0 ? `${stock} disponibles` : 'Sin stock' }}
           </small>
@@ -53,7 +53,6 @@
       
       <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
         <div class="text-center">
-          <!-- Botón Ver Detalles -->
           <button 
             class="btn btn-outline-primary w-100 mb-2"
             @click="goToDetail"
@@ -61,14 +60,18 @@
             <i class="bi bi-eye me-2"></i>Ver Detalles
           </button>
           
-          <!-- Botón Añadir al carrito -->
           <button 
             class="btn mt-auto w-100"
             :class="stock > 0 ? 'btn-outline-dark' : 'btn-secondary'"
-            :disabled="stock === 0"
+            :disabled="stock === 0 || isAdding"
             @click.stop="handleAddToCart"
           >
-            {{ stock > 0 ? 'Añadir al carrito' : 'Sin stock' }}
+            <span v-if="isAdding">
+              <i class="fa-solid fa-spinner fa-spin me-2"></i>Añadiendo...
+            </span>
+            <span v-else>
+              {{ stock > 0 ? 'Añadir al carrito' : 'Sin stock' }}
+            </span>
           </button>
         </div>
       </div>
@@ -77,10 +80,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cart'
+import type { Product } from '@/types/product'
 
-// Props que coinciden exactamente con tu tabla de productos
 const props = defineProps<{
   id: string
   name: string
@@ -94,6 +98,11 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+const cartStore = useCartStore()
+
+// Estados locales
+const isAdding = ref(false)
+const showAddedBadge = ref(false)
 
 // Computed properties
 const formattedPrice = computed(() => {
@@ -104,7 +113,7 @@ const formattedPrice = computed(() => {
 })
 
 const showSaleBadge = computed(() => {
-  return props.stock < 5 && props.stock > 0 // Muestra badge si stock es bajo
+  return props.stock < 5 && props.stock > 0
 })
 
 const truncatedDescription = computed(() => {
@@ -114,19 +123,45 @@ const truncatedDescription = computed(() => {
     : props.description
 })
 
-// Events
-const emit = defineEmits<{
-  addToCart: [productId: string]
-}>()
-
-// Navegar al detalle del producto
+// Navegar al detalle
 const goToDetail = () => {
   router.push({ name: 'product-detail', params: { id: props.id } })
 }
 
-const handleAddToCart = () => {
-  if (props.stock > 0) {
-    emit('addToCart', props.id)
+// Añadir al carrito
+const handleAddToCart = async () => {
+  if (props.stock > 0 && !isAdding.value) {
+    isAdding.value = true
+    
+    // Crear objeto producto completo
+    const product: Product = {
+      id: props.id,
+      name: props.name,
+      description: props.description || undefined,
+      price: props.price,
+      stock: props.stock,
+      category: props.category,
+      size: props.size || undefined,
+      color: props.color || undefined,
+      image_url: props.image_url || undefined,
+      created_at: new Date().toISOString()
+    }
+    
+    // Añadir al carrito
+    cartStore.addItem(product, 1)
+    
+    // Mostrar badge de confirmación
+    showAddedBadge.value = true
+    
+    // Simular un pequeño delay para feedback visual
+    setTimeout(() => {
+      isAdding.value = false
+      
+      // Ocultar badge después de 2 segundos
+      setTimeout(() => {
+        showAddedBadge.value = false
+      }, 2000)
+    }, 500)
   }
 }
 </script>
@@ -162,13 +197,34 @@ const handleAddToCart = () => {
   z-index: 10;
 }
 
-/* Efecto hover en el botón Ver Detalles */
 .btn-outline-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
 }
 
-/* Estilos responsive */
+/* Animación del badge de "Añadido" */
+.badge-pop-enter-active {
+  animation: badge-pop 0.3s ease-out;
+}
+
+.badge-pop-leave-active {
+  animation: badge-pop 0.3s ease-out reverse;
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 576px) {
   .card-img-top {
     height: 200px;
