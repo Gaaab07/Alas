@@ -381,7 +381,7 @@ import '@/assets/styles/checkout.css'
 
 const router = useRouter()
 const cartStore = useCartStore()
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
 
 const isProcessing = ref(false)
 const showSuccessModal = ref(false)
@@ -402,7 +402,6 @@ const checkoutForm = ref({
   phone: ''
 })
 
-// Objeto para manejar errores de validación
 const errors = ref({
   firstName: '',
   lastName: '',
@@ -411,7 +410,6 @@ const errors = ref({
   phone: ''
 })
 
-// Validar que el nombre y apellido solo contengan letras y espacios
 const validateName = (field: 'firstName' | 'lastName') => {
   const value = checkoutForm.value[field]
   const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/
@@ -424,7 +422,6 @@ const validateName = (field: 'firstName' | 'lastName') => {
   }
 }
 
-// Validar DNI (solo números, 8 dígitos)
 const validateDocumentId = () => {
   const value = checkoutForm.value.documentId
   const numbersOnly = value.replace(/\D/g, '')
@@ -439,7 +436,6 @@ const validateDocumentId = () => {
   }
 }
 
-// Validar código postal (solo números)
 const validatePostalCode = () => {
   const value = checkoutForm.value.postalCode
   const numbersOnly = value.replace(/\D/g, '')
@@ -450,7 +446,6 @@ const validatePostalCode = () => {
   }
 }
 
-// Validar teléfono (solo números, 9 dígitos)
 const validatePhone = () => {
   const value = checkoutForm.value.phone
   const numbersOnly = value.replace(/\D/g, '')
@@ -465,12 +460,10 @@ const validatePhone = () => {
   }
 }
 
-// Computed para verificar si hay errores
 const hasErrors = computed(() => {
   return Object.values(errors.value).some(error => error !== '')
 })
 
-// Validación del formulario completo
 const isFormValid = computed(() => {
   return (
     checkoutForm.value.email &&
@@ -484,13 +477,12 @@ const isFormValid = computed(() => {
   )
 })
 
-// Computed principal: verifica TODO antes de permitir el pago
 const canProceedToPayment = computed(() => {
   return (
-    cartStore.items.length > 0 &&  // Debe haber items en el carrito
-    isFormValid.value &&            // El formulario debe ser válido
-    !hasErrors.value &&             // No debe haber errores
-    !isProcessing.value             // No debe estar procesando
+    cartStore.items.length > 0 &&
+    isFormValid.value &&
+    !hasErrors.value &&
+    !isProcessing.value
   )
 })
 
@@ -540,9 +532,14 @@ const updateStock = async () => {
 }
 
 const proceedToPayment = async () => {
-  // Verificar que hay items en el carrito
   if (cartStore.items.length === 0) {
     alert('Tu carrito está vacío. Agrega productos antes de continuar.')
+    return
+  }
+
+  if (!isAuthenticated.value || !user.value) {
+    alert('Debes iniciar sesión para completar tu compra')
+    router.push('/signin')
     return
   }
 
@@ -551,24 +548,69 @@ const proceedToPayment = async () => {
   try {
     isProcessing.value = true
 
+    // 1. Actualizar stock
     const stockUpdates = await updateStock()
 
-    console.log('✅ Compra procesada exitosamente')
+    // 2. Crear la orden
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        user_id: user.value.id,
+        user_email: user.value.email,
+        total: cartStore.total,
+        status: 'completed',
+        delivery_method: checkoutForm.value.deliveryMethod,
+        shipping_address: {
+          firstName: checkoutForm.value.firstName,
+          lastName: checkoutForm.value.lastName,
+          documentId: checkoutForm.value.documentId,
+          email: checkoutForm.value.email,
+          phone: checkoutForm.value.phone,
+          country: checkoutForm.value.country,
+          address: checkoutForm.value.address,
+          apartment: checkoutForm.value.apartment,
+          district: checkoutForm.value.district,
+          province: checkoutForm.value.province,
+          postalCode: checkoutForm.value.postalCode
+        }
+      })
+      .select()
+      .single()
+
+    if (orderError) {
+      throw new Error('Error al crear la orden: ' + orderError.message)
+    }
+
+    // 3. Crear los items
+    const orderItems = cartStore.items.map(item => ({
+      order_id: order.id,
+      product_id: item.id,
+      product_name: item.name,
+      product_price: item.price,
+      product_size: item.size,
+      product_color: item.color,
+      product_image_url: item.image_url,
+      quantity: item.quantity,
+      subtotal: item.price * item.quantity
+    }))
+
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(orderItems)
+
+    if (itemsError) {
+      throw new Error('Error al guardar los productos: ' + itemsError.message)
+    }
+
+    console.log('✅ Orden creada:', order.id)
     console.log('📦 Stock actualizado:', stockUpdates)
-    console.log('👤 Datos del cliente:', checkoutForm.value)
-    console.log('🛒 Productos comprados:', cartStore.items)
-    console.log('💰 Total pagado:', cartStore.total)
 
     cartStore.clearCart()
     showSuccessModal.value = true
 
   } catch (error) {
-    console.error('❌ Error al procesar la compra:', error)
-    
-    alert(error instanceof Error 
-      ? error.message 
-      : 'Hubo un error al procesar tu compra. Por favor, intenta de nuevo.'
-    )
+    console.error('❌ Error:', error)
+    alert(error instanceof Error ? error.message : 'Error al procesar la compra')
   } finally {
     isProcessing.value = false
   }
@@ -579,7 +621,6 @@ const closeSuccessModal = () => {
   router.push('/shop')
 }
 
-// Verificar si el carrito está vacío al cargar la página
 onMounted(() => {
   if (cartStore.items.length === 0) {
     console.warn('⚠️ El carrito está vacío')
