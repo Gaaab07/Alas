@@ -16,19 +16,36 @@ const routes = [
     path: '/',
     component: DefaultLayout,
     children: [
-      { path: '', name: 'shop', component: ShopView },
-      { path: 'welcome', name: 'welcome', component: () => import('../views/Auth/WelcomeView.vue') },
-      { path: 'auth/v1/callback', name: 'auth-callback', component: () => import('../views/Auth/AuthCallback.vue') },
-      {
-      path: 'product/:id',
-      name: 'product-detail',
-      component: () => import('@/views/Shop/ProductDetailView.vue')
+      { 
+        path: '', 
+        name: 'home', 
+        component: ShopView  // HOME con HeroVideo
+      },
+      { 
+        path: 'shop', 
+        name: 'shop', 
+        component: () => import('../views/Shop/ProductsView.vue')  // TIENDA solo productos
+      },
+      { 
+        path: 'welcome', 
+        name: 'welcome', 
+        component: () => import('../views/Auth/WelcomeView.vue') 
+      },
+      { 
+        path: 'auth/v1/callback', 
+        name: 'auth-callback', 
+        component: () => import('../views/Auth/AuthCallback.vue') 
       },
       {
-      path: '/checkout',
-      name: 'checkout',
-      component: () => import('@/views/Shop/CheckoutView.vue'),
-      meta: { requiresAuth: false }
+        path: 'product/:id',
+        name: 'product-detail',
+        component: () => import('@/views/Shop/ProductDetailView.vue')
+      },
+      {
+        path: '/checkout',
+        name: 'checkout',
+        component: () => import('@/views/Shop/CheckoutView.vue'),
+        meta: { requiresAuth: false }
       },
       // Rutas protegidas
       { 
@@ -125,7 +142,7 @@ router.beforeEach(async (to, _from, next) => {
         role: profile.value?.role,
         profile: profile.value
       })
-      return next({ name: 'shop' })
+      return next({ name: 'home' })  // Cambiado de 'shop' a 'home'
     }
   }
 
