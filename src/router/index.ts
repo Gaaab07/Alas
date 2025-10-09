@@ -42,6 +42,16 @@ const routes = [
         component: () => import('@/views/Shop/ProductDetailView.vue')
       },
       {
+        path: 'collections',
+        name: 'collections',
+        component: () => import('@/views/Shop/CollectionsView.vue')
+      },
+      {
+        path: 'collection/:collection',
+        name: 'collection-detail',
+        component: () => import('@/views/Shop/CollectionDetailView.vue')
+      },
+      {
         path: '/checkout',
         name: 'checkout',
         component: () => import('@/views/Shop/CheckoutView.vue'),
@@ -66,6 +76,11 @@ const routes = [
         path: '/politicas/terminos',
         name: 'politica-terminos',
         component: () => import('@/views/Politicas/PoliticaTerminos.vue')
+      },
+      {
+      path: '/about', // 👈 Nueva ruta
+      name: 'About',
+      component: () => import('@/views/Politicas/AboutView.vue')
       },
       // Rutas protegidas
       { 

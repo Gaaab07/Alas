@@ -1,5 +1,5 @@
 export interface Product {
-  id: string // porque es uuid
+  id: string
   name: string
   description?: string
   price: number
@@ -8,5 +8,6 @@ export interface Product {
   size?: string
   color?: string
   image_url?: string
+  collection?: string  
   created_at: string
 }
