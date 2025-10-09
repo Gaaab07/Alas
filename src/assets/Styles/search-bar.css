@@ -1,0 +1,257 @@
+/* Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1060;
+  backdrop-filter: blur(3px);
+}
+
+/* Contenedor principal */
+.search-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  z-index: 1070;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.search-wrapper {
+  padding: 2rem 0;
+}
+
+/* Input de búsqueda */
+.search-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 50px;
+  padding: 0 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-icon {
+  color: #6c757d;
+  font-size: 1.25rem;
+  margin-right: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 1.25rem 0;
+  font-size: 1.1rem;
+  outline: none;
+  color: #333;
+}
+
+.search-input::placeholder {
+  color: #adb5bd;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  transition: color 0.2s;
+}
+
+.clear-btn:hover {
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* Resultados */
+.search-results {
+  min-height: 200px;
+}
+
+.results-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.result-item:hover {
+  background-color: #f8f9fa;
+}
+
+.result-image {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+.result-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.result-info {
+  flex: 1;
+}
+
+.result-info h6 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.result-price {
+  font-weight: 600;
+  color: #0d6efd;
+  margin: 0;
+}
+
+.result-arrow {
+  color: #adb5bd;
+  font-size: 0.875rem;
+}
+
+/* Sin resultados */
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+/* Sugerencias */
+.search-suggestions {
+  padding: 1rem 0;
+}
+
+.suggestions-header {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.suggestion-tag {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 50px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-tag:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+  color: #333;
+}
+
+/* Animaciones */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: transform 0.3s ease-out;
+}
+
+.slide-down-enter-from, .slide-down-leave-to {
+  transform: translateY(-100%);
+}
+
+/* Scrollbar personalizado */
+.search-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.search-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.search-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.search-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .search-wrapper {
+    padding: 1.5rem 0;
+  }
+  
+  .search-input {
+    padding: 1rem 0;
+    font-size: 1rem;
+  }
+  
+  .result-item {
+    padding: 0.75rem;
+  }
+  
+  .result-image {
+    width: 50px;
+    height: 50px;
+  }
+}

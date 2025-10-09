@@ -19,6 +19,91 @@
   transform: translate(-50%, -50%) scale(1.05);
 }
 
+/* Estilos generales del navbar */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.nav-link {
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+/* Botones del navbar */
+.btn-link {
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  color: #0d6efd !important;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.dropdown-menu .btn {
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu .btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Botones deshabilitados */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mejorar los botones del navbar */
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover,
+.btn-outline-primary:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Badge del carrito y admin */
+.badge {
+  font-size: 0.7rem;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilos de admin */
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #ffca2c;
+  border-color: #ffc720;
+}
+
+.nav-link.text-warning:hover {
+  color: #ffca2c !important;
+}
+
 /* Responsive para móviles */
 @media (max-width: 991.98px) {
   .navbar-brand-centered {
@@ -40,22 +125,4 @@
   .d-flex {
     order: 1;
   }
-}
-
-/* Estilos adicionales para mejorar la apariencia */
-.navbar {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Mejorar los botones del navbar */
-.btn-outline-secondary:hover,
-.btn-outline-dark:hover,
-.btn-outline-primary:hover {
-  transform: translateY(-1px);
-  transition: all 0.2s ease;
-}
-
-/* Badge del carrito */
-.badge {
-  font-size: 0.7em;
 }

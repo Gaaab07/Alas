@@ -12,7 +12,7 @@
     <div v-else-if="!product" class="text-center py-5">
       <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
       <h3 class="mt-3">Producto no encontrado</h3>
-      <router-link to="/" class="btn btn-primary mt-3">Volver a la tienda</router-link>
+      <router-link to="/shop" class="btn btn-primary mt-3">Volver a la tienda</router-link>
     </div>
 
     <!-- Detalle del producto -->
@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/supabase'
 import { useCartStore } from '@/stores/cart'
@@ -177,7 +177,10 @@ const availableSizes = ref(['XS', 'S', 'M', 'L'])
 
 const fetchProduct = async () => {
   loading.value = true
+  product.value = null // Reset product
   const productId = route.params.id as string
+
+  console.log('🔄 Cargando producto:', productId)
 
   try {
     const { data, error } = await supabase
@@ -190,11 +193,14 @@ const fetchProduct = async () => {
 
     product.value = data
     
-    if (data.size) {
-      selectedSize.value = data.size
-    }
+    // Reset estados
+    quantity.value = 1
+    selectedSize.value = data.size || ''
+    showSuccessMessage.value = false
+    
+    console.log('✅ Producto cargado:', data.name)
   } catch (error) {
-    console.error('Error obteniendo producto:', error)
+    console.error('❌ Error obteniendo producto:', error)
     product.value = null
   } finally {
     loading.value = false
@@ -244,6 +250,20 @@ const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
   target.style.display = 'none'
 }
+
+// IMPORTANTE: Watch para detectar cambios en el ID de la ruta
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      console.log('🔄 Ruta cambió de', oldId, 'a', newId)
+      fetchProduct()
+      
+      // Scroll to top cuando cambia de producto
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+)
 
 onMounted(() => {
   fetchProduct()

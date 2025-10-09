@@ -53,10 +53,14 @@
             </ul>
           </div>
 
-          <!-- Icono de búsqueda -->
-          <router-link to="/search" class="btn btn-link text-dark p-2 me-2">
+          <!-- BOTÓN DE BÚSQUEDA ACTUALIZADO -->
+          <button 
+            @click="openSearch" 
+            class="btn btn-link text-dark p-2 me-2"
+            type="button"
+          >
             <i class="fa-solid fa-magnifying-glass"></i>
-          </router-link>
+          </button>
           
           <!-- Dropdown de usuario -->
           <div class="dropdown me-2" ref="userDropdownRef">
@@ -146,7 +150,7 @@
             </div>
           </div>
           
-          <!-- Botón del carrito - AHORA ABRE EL SIDEBAR -->
+          <!-- Botón del carrito -->
           <button 
             @click="cartStore.toggleCart()"
             class="btn btn-link text-dark p-2 position-relative"
@@ -164,6 +168,9 @@
 
   <!-- Cart Sidebar Component -->
   <CartSidebar />
+  
+  <!-- Search Bar Component -->
+  <SearchBar ref="searchBarRef" />
 </template>
 
 <script setup lang="ts">
@@ -172,9 +179,12 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useCartStore } from '@/stores/cart'
 import CartSidebar from './CartSidebar.vue'
+import SearchBar from './SearchBar.vue'
+import '@/assets/styles/navbar.css'
 
 const router = useRouter()
 const cartStore = useCartStore()
+const searchBarRef = ref()
 
 // Referencias del template
 const userDropdownRef = ref<HTMLElement>()
@@ -204,6 +214,11 @@ declare global {
       }
     }
   }
+}
+
+// Función para abrir búsqueda
+const openSearch = () => {
+  searchBarRef.value?.openSearch()
 }
 
 // Función para reinicializar el dropdown de Bootstrap
@@ -290,75 +305,3 @@ const closeDropdown = () => {
   }
 }
 </script>
-
-<style scoped>
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.nav-link {
-  font-weight: 500;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-}
-
-.btn-link {
-  text-decoration: none !important;
-}
-
-.btn-link:hover {
-  color: #0d6efd !important;
-}
-
-.dropdown-menu {
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-.dropdown-menu .btn {
-  transition: all 0.2s ease;
-}
-
-.dropdown-menu .btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.badge {
-  font-size: 0.7rem;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.text-warning {
-  color: #ffc107 !important;
-}
-
-.btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #000;
-}
-
-.btn-warning:hover {
-  background-color: #ffca2c;
-  border-color: #ffc720;
-}
-
-.nav-link {
-  transition: color 0.3s ease;
-}
-
-.nav-link.text-warning:hover {
-  color: #ffca2c !important;
-}
-</style>

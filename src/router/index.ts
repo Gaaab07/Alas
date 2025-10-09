@@ -47,6 +47,26 @@ const routes = [
         component: () => import('@/views/Shop/CheckoutView.vue'),
         meta: { requiresAuth: false }
       },
+      {
+        path: '/politicas/reembolso',
+        name: 'politica-reembolso',
+        component: () => import('@/views/Politicas/PoliticaReembolso.vue')
+      },
+      {
+        path: '/politicas/envios',
+        name: 'politica-envios',
+        component: () => import('@/views/Politicas/PoliticaEnvios.vue')
+      },
+      {
+        path: '/politicas/privacidad',
+        name: 'politica-privacidad',
+        component: () => import('@/views/Politicas/PoliticaPrivacidad.vue')
+      },
+      {
+        path: '/politicas/terminos',
+        name: 'politica-terminos',
+        component: () => import('@/views/Politicas/PoliticaTerminos.vue')
+      },
       // Rutas protegidas
       { 
         path: 'orders',
