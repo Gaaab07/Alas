@@ -1,0 +1,221 @@
+
+
+/* ShopView ajustes */
+.row.gx-4.gx-lg-5.row-cols-2.row-cols-md-3.row-cols-xl-4 {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  margin: 0 !important;
+}
+
+/* ProductsView ajustes */
+.products-view .products-grid,
+.collection-detail-view .products-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  padding: 0 !important;
+}
+
+/* Contenedor más estrecho y centrado */
+.container-fluid.px-4.px-lg-5 {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* --- AJUSTES PARA LAS TARJETAS DE PRODUCTO --- */
+
+.product-card {
+  background-color: #f5f5f5 !important; /* Fondo claro como en la referencia */
+  border-radius: 0 !important; /* Sin bordes redondeados */
+  margin-bottom: 0 !important;
+}
+
+.product-card:hover {
+  transform: translateY(-3px) !important; /* Menos movimiento */
+}
+
+/* Imagen más rectangular (proporción 4:5) */
+.product-image-wrapper {
+  padding-top: 125% !important; /* Ratio 4:5 (más alto que ancho) */
+  background-color: #fff !important;
+}
+
+/* Badge agotado más discreto */
+.badge-agotado {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  padding: 4px 12px !important;
+  font-size: 0.7rem !important;
+  top: 10px !important;
+  left: 10px !important;
+  border-radius: 2px !important;
+}
+
+/* Overlay más sutil */
+.product-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent) !important;
+  padding: 1.5rem 1rem 1rem !important;
+}
+
+/* Botón más compacto */
+.btn-add-cart {
+  padding: 0.6rem 1.2rem !important;
+  font-size: 0.8rem !important;
+  border-radius: 2px !important;
+}
+
+/* Info del producto más compacta */
+.product-info {
+  padding: 15px 12px !important;
+  background-color: transparent !important;
+}
+
+.product-name {
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  margin-bottom: 6px !important;
+  color: #1a1a1a !important;
+  letter-spacing: 0.3px !important;
+  line-height: 1.3 !important;
+}
+
+.product-price {
+  font-size: 0.85rem !important;
+  color: #333 !important;
+  font-weight: 500 !important;
+}
+
+/* --- TÍTULOS Y HEADERS --- */
+
+/* Títulos más discretos */
+.products-title,
+.collection-detail-title {
+  font-size: 1.5rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 1px !important;
+  color: #1a1a1a !important;
+  margin-bottom: 30px !important;
+}
+
+.products-header,
+.collection-detail-header {
+  padding: 2rem 0 1rem !important;
+  background: transparent !important;
+}
+
+/* Subtítulos */
+.collection-detail-subtitle {
+  font-size: 0.95rem !important;
+  color: #666 !important;
+}
+
+/* --- FONDOS Y ESPACIADO --- */
+
+.products-view,
+.collection-detail-view {
+  background-color: #fafafa !important; /* Fondo más claro */
+  padding-top: 90px !important;
+}
+
+.products-section {
+  padding: 2rem 0 !important;
+}
+
+/* --- RESPONSIVE --- */
+
+/* Tablets grandes (3 columnas) */
+@media (max-width: 1200px) {
+  .row.gx-4.gx-lg-5.row-cols-2.row-cols-md-3.row-cols-xl-4,
+  .products-view .products-grid,
+  .collection-detail-view .products-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 18px !important;
+  }
+}
+
+/* Tablets (3 columnas más estrechas) */
+@media (max-width: 992px) {
+  .row.gx-4.gx-lg-5.row-cols-2.row-cols-md-3.row-cols-xl-4,
+  .products-view .products-grid,
+  .collection-detail-view .products-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px !important;
+  }
+
+  .products-title,
+  .collection-detail-title {
+    font-size: 1.3rem !important;
+  }
+
+  .product-name {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Móviles grandes (2 columnas) */
+@media (max-width: 768px) {
+  .row.gx-4.gx-lg-5.row-cols-2.row-cols-md-3.row-cols-xl-4,
+  .products-view .products-grid,
+  .collection-detail-view .products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .container-fluid.px-4.px-lg-5 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .product-info {
+    padding: 12px 10px !important;
+  }
+
+  .product-name {
+    font-size: 0.8rem !important;
+  }
+
+  .product-price {
+    font-size: 0.8rem !important;
+  }
+
+  .btn-add-cart {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 576px) {
+  .products-view,
+  .collection-detail-view {
+    padding-top: 80px !important;
+  }
+
+  .products-title,
+  .collection-detail-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+/* --- LOADING Y ESTADOS VACÍOS --- */
+
+.spinner-border {
+  color: #333 !important;
+}
+
+.empty-collection {
+  background-color: transparent !important;
+  color: #666 !important;
+}
+
+.empty-collection h3 {
+  color: #333 !important;
+}
+
+/* --- AJUSTE PARA NAVBAR (si es oscuro) --- */
+.products-view,
+.collection-detail-view {
+  background-color: #fff !important;
+}
