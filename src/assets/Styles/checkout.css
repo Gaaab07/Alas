@@ -1,3 +1,5 @@
+/* src/assets/styles/checkout.css */
+
 .checkout-container {
   background-color: #f8f9fa;
   min-height: 100vh;
@@ -19,19 +21,120 @@
   font-weight: 600;
 }
 
-.form-control-lg,
-.form-select-lg {
+.form-control-lg, .form-select-lg {
   border-radius: 8px;
   border: 1px solid #d1d5db;
   padding: 0.875rem 1rem;
 }
 
-.form-control-lg:focus,
-.form-select-lg:focus {
+.form-control-lg:focus, .form-select-lg:focus {
   border-color: #000;
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 
+/* ========================================
+   OPCIONES DE ENVÍO (NUEVO DISEÑO)
+   ======================================== */
+
+.shipping-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shipping-option-card {
+  background: white;
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.shipping-option-card:hover:not(.disabled) {
+  border-color: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-option-card.active {
+  border-color: #000;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shipping-option-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.shipping-option-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.shipping-option-header input[type="radio"] {
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.shipping-option-info {
+  flex: 1;
+}
+
+.shipping-option-info strong {
+  font-size: 1rem;
+  color: #111827;
+}
+
+.shipping-option-info small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #6b7280;
+}
+
+.shipping-option-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.shipping-option-price strong {
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.shipping-option-price small {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.shipping-option-conditions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.shipping-option-conditions ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.shipping-option-conditions li {
+  padding: 0.25rem 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.shipping-option-conditions li::before {
+  content: "•";
+  margin-right: 0.5rem;
+  color: #9ca3af;
+}
+
+/* Delivery options (deprecado - mantener por compatibilidad) */
 .delivery-options {
   display: flex;
   gap: 1rem;
@@ -62,7 +165,10 @@
   font-weight: 500;
 }
 
-/* Order Summary */
+/* ========================================
+   ORDER SUMMARY
+   ======================================== */
+
 .order-summary {
   background: white;
   padding: 2rem;
@@ -139,7 +245,10 @@
   font-size: 0.95rem;
 }
 
-/* Modal de éxito */
+/* ========================================
+   MODAL DE ÉXITO
+   ======================================== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -174,7 +283,10 @@
   }
 }
 
-/* Animación fade */
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
@@ -183,16 +295,45 @@
   opacity: 0;
 }
 
-/* Responsive */
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
 @media (max-width: 991px) {
   .order-summary {
     position: relative;
     top: 0;
     margin-top: 2rem;
   }
+  
+  .shipping-option-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .shipping-option-price {
+    text-align: left;
+  }
 }
 
-/* Scrollbar personalizado */
+@media (max-width: 576px) {
+  .shipping-option-card {
+    padding: 1rem;
+  }
+  
+  .shipping-option-header {
+    font-size: 0.9rem;
+  }
+  
+  .shipping-option-conditions li {
+    font-size: 0.85rem;
+  }
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZADO
+   ======================================== */
+
 .cart-items-summary::-webkit-scrollbar {
   width: 6px;
 }
@@ -209,4 +350,65 @@
 
 .cart-items-summary::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* ========================================
+   ESTILOS ADICIONALES
+   ======================================== */
+
+.payment-card-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+}
+
+.payment-card-form code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.form-label.fw-bold {
+  font-weight: 600;
+}
+
+.alert-info {
+  background-color: #e0f2fe;
+  border-color: #bae6fd;
+  color: #075985;
+}
+
+.alert-warning {
+  background-color: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.alert-success {
+  background-color: #d1fae5;
+  border-color: #a7f3d0;
+  color: #065f46;
+}
+
+.btn-dark {
+  background-color: #111827;
+  border-color: #111827;
+}
+
+.btn-dark:hover {
+  background-color: #000;
+  border-color: #000;
+}
+
+.btn-dark:disabled {
+  background-color: #6b7280;
+  border-color: #6b7280;
+  cursor: not-allowed;
 }

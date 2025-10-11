@@ -13,7 +13,7 @@
         </router-link>
       </div>
 
-      <!-- Formulario de checkout (solo se muestra si hay items) -->
+      <!-- Formulario de checkout -->
       <div v-else>
         <!-- Header con breadcrumb -->
         <div class="checkout-header mb-4">
@@ -26,7 +26,6 @@
                 <a href="#" @click.prevent="cartStore.openCart()">Carrito</a>
               </li>
               <li class="breadcrumb-item active" aria-current="page">Información</li>
-              <li class="breadcrumb-item text-muted">Envío</li>
               <li class="breadcrumb-item text-muted">Pago</li>
             </ol>
           </nav>
@@ -53,7 +52,7 @@
                   v-model="checkoutForm.email"
                   type="email" 
                   class="form-control form-control-lg" 
-                  placeholder="Email o número de teléfono móvil"
+                  placeholder="Email"
                   required
                 />
               </div>
@@ -71,47 +70,6 @@
               </div>
             </section>
 
-            <!-- Forma de entrega -->
-            <section class="mb-5">
-              <h4 class="mb-3">Forma de entrega</h4>
-              
-              <div class="delivery-options">
-                <div 
-                  class="delivery-option"
-                  :class="{ active: checkoutForm.deliveryMethod === 'shipping' }"
-                  @click="checkoutForm.deliveryMethod = 'shipping'"
-                >
-                  <input 
-                    type="radio" 
-                    name="delivery" 
-                    value="shipping"
-                    v-model="checkoutForm.deliveryMethod"
-                  />
-                  <span class="delivery-label">
-                    <i class="fa-solid fa-truck me-2"></i>
-                    Envío
-                  </span>
-                </div>
-                
-                <div 
-                  class="delivery-option"
-                  :class="{ active: checkoutForm.deliveryMethod === 'pickup' }"
-                  @click="checkoutForm.deliveryMethod = 'pickup'"
-                >
-                  <input 
-                    type="radio" 
-                    name="delivery" 
-                    value="pickup"
-                    v-model="checkoutForm.deliveryMethod"
-                  />
-                  <span class="delivery-label">
-                    <i class="fa-solid fa-store me-2"></i>
-                    Retiro
-                  </span>
-                </div>
-              </div>
-            </section>
-
             <!-- Dirección de envío -->
             <section class="mb-5">
               <h4 class="mb-3">Dirección de envío</h4>
@@ -119,20 +77,27 @@
               <div class="row g-3">
                 <!-- País/Región -->
                 <div class="col-12">
-                  <label class="form-label">País / Región</label>
+                  <label class="form-label fw-bold">País / Región *</label>
                   <select 
                     v-model="checkoutForm.country"
                     class="form-select form-select-lg"
+                    @change="onCountryChange"
+                    required
                   >
-                    <option value="PE">Perú</option>
-                    <option value="AR">Argentina</option>
-                    <option value="CL">Chile</option>
-                    <option value="CO">Colombia</option>
+                    <option value="">Seleccionar país...</option>
+                    <option 
+                      v-for="country in availableCountries" 
+                      :key="country.code"
+                      :value="country.code"
+                    >
+                      {{ country.name }}
+                    </option>
                   </select>
                 </div>
 
                 <!-- Nombre y Apellido -->
                 <div class="col-md-6">
+                  <label class="form-label">Nombre *</label>
                   <input 
                     v-model="checkoutForm.firstName"
                     type="text" 
@@ -147,6 +112,7 @@
                   </div>
                 </div>
                 <div class="col-md-6">
+                  <label class="form-label">Apellidos *</label>
                   <input 
                     v-model="checkoutForm.lastName"
                     type="text" 
@@ -161,47 +127,83 @@
                   </div>
                 </div>
 
-                <!-- DNI/CE/Pasaporte -->
+                <!-- DNI/Documento -->
                 <div class="col-12">
+                  <label class="form-label">{{ documentLabel }} *</label>
                   <input 
                     v-model="checkoutForm.documentId"
                     type="text" 
                     class="form-control form-control-lg" 
                     :class="{ 'is-invalid': errors.documentId }"
-                    placeholder="DNI (8 dígitos)"
-                    maxlength="8"
+                    :placeholder="documentPlaceholder"
+                    :maxlength="documentMaxLength"
                     @input="validateDocumentId"
                     required
                   />
                   <div v-if="errors.documentId" class="invalid-feedback">
                     {{ errors.documentId }}
                   </div>
-                  <small class="text-muted">Ingrese su DNI de 8 dígitos</small>
+                  <small class="text-muted">{{ documentHint }}</small>
                 </div>
 
                 <!-- Dirección -->
                 <div class="col-12">
+                  <label class="form-label">Dirección *</label>
                   <input 
                     v-model="checkoutForm.address"
                     type="text" 
                     class="form-control form-control-lg" 
-                    placeholder="Dirección"
+                    placeholder="Calle, número, etc."
                     required
                   />
                 </div>
 
                 <!-- Apartamento (opcional) -->
                 <div class="col-12">
+                  <label class="form-label">Apartamento, departamento, etc. (opcional)</label>
                   <input 
                     v-model="checkoutForm.apartment"
                     type="text" 
                     class="form-control form-control-lg" 
-                    placeholder="Casa, apartamento, etc. (opcional)"
+                    placeholder="Apto, Dpto, Piso, etc."
                   />
                 </div>
 
-                <!-- Código postal, Distrito, Provincia -->
-                <div class="col-md-4">
+                <!-- Provincia/Estado y Distrito/Ciudad -->
+                <div class="col-md-6">
+                  <label class="form-label">{{ provinceLabel }} *</label>
+                  <select 
+                    v-model="checkoutForm.province"
+                    class="form-select form-select-lg"
+                    @change="onProvinceChange"
+                    :disabled="!checkoutForm.country"
+                    required
+                  >
+                    <option value="">Seleccionar {{ provinceLabel.toLowerCase() }}...</option>
+                    <option 
+                      v-for="province in availableProvinces" 
+                      :key="province.name"
+                      :value="province.name"
+                    >
+                      {{ province.name }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">{{ districtLabel }}</label>
+                  <input 
+                    v-model="checkoutForm.district"
+                    type="text" 
+                    class="form-control form-control-lg" 
+                    :placeholder="districtPlaceholder"
+                    :required="checkoutForm.country === 'PE'"
+                  />
+                </div>
+
+                <!-- Código postal -->
+                <div class="col-md-6">
+                  <label class="form-label">Código postal {{ isInternational ? '*' : '' }}</label>
                   <input 
                     v-model="checkoutForm.postalCode"
                     type="text" 
@@ -209,55 +211,184 @@
                     :class="{ 'is-invalid': errors.postalCode }"
                     placeholder="Código postal"
                     @input="validatePostalCode"
+                    :required="isInternational"
                   />
                   <div v-if="errors.postalCode" class="invalid-feedback">
                     {{ errors.postalCode }}
                   </div>
                 </div>
-                <div class="col-md-4">
-                  <input 
-                    v-model="checkoutForm.district"
-                    type="text" 
-                    class="form-control form-control-lg" 
-                    placeholder="Distrito"
-                    required
-                  />
-                </div>
-                <div class="col-md-4">
-                  <select 
-                    v-model="checkoutForm.province"
-                    class="form-select form-select-lg"
-                    required
-                  >
-                    <option value="">Provincia / Estado</option>
-                    <option value="Lima">Lima</option>
-                    <option value="Arequipa">Arequipa</option>
-                    <option value="Cusco">Cusco</option>
-                    <option value="Trujillo">Trujillo</option>
-                  </select>
-                </div>
 
                 <!-- Teléfono -->
-                <div class="col-12">
-                  <div class="input-group input-group-lg">
+                <div class="col-md-6">
+                  <label class="form-label">Teléfono *</label>
+                  <input 
+                    v-model="checkoutForm.phone"
+                    type="tel" 
+                    class="form-control form-control-lg" 
+                    :class="{ 'is-invalid': errors.phone }"
+                    :placeholder="phonePlaceholder"
+                    :maxlength="phoneMaxLength"
+                    @input="validatePhone"
+                    required
+                  />
+                  <div v-if="errors.phone" class="invalid-feedback">
+                    {{ errors.phone }}
+                  </div>
+                  <small class="text-muted">{{ phoneHint }}</small>
+                </div>
+              </div>
+            </section>
+
+            <!-- Forma de entrega -->
+            <section class="mb-5">
+              <h4 class="mb-3">Forma de entrega</h4>
+              
+              <div class="alert alert-info" v-if="!checkoutForm.country">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                Selecciona un país para ver las opciones de envío disponibles
+              </div>
+
+              <div v-else class="shipping-options-list">
+                <div 
+                  v-for="option in availableShippingOptions"
+                  :key="option.id"
+                  class="shipping-option-card"
+                  :class="{ 
+                    'active': selectedShippingOption?.id === option.id,
+                    'disabled': !option.available 
+                  }"
+                  @click="option.available && selectShippingOption(option)"
+                >
+                  <div class="shipping-option-header">
                     <input 
-                      v-model="checkoutForm.phone"
-                      type="tel" 
-                      class="form-control" 
-                      :class="{ 'is-invalid': errors.phone }"
-                      placeholder="Teléfono (9 dígitos)"
-                      maxlength="9"
-                      @input="validatePhone"
-                      required
+                      type="radio" 
+                      :name="'shipping-' + option.id" 
+                      :value="option.id"
+                      :checked="selectedShippingOption?.id === option.id"
+                      :disabled="!option.available"
+                      @click.stop
                     />
-                    <button class="btn btn-outline-secondary" type="button">
-                      <i class="fa-solid fa-circle-info"></i>
-                    </button>
-                    <div v-if="errors.phone" class="invalid-feedback">
-                      {{ errors.phone }}
+                    <div class="shipping-option-info">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid" :class="option.icon"></i>
+                        <strong>{{ option.label }}</strong>
+                      </div>
+                      <small class="text-muted">{{ option.description }}</small>
+                    </div>
+                    <div class="shipping-option-price">
+                      <strong>{{ formatCost(option.cost, option.currency) }}</strong>
+                      <small class="text-muted d-block">{{ option.deliveryTime }}</small>
                     </div>
                   </div>
-                  <small class="text-muted">Ingrese su número de teléfono de 9 dígitos</small>
+                  
+                  <!-- Condiciones -->
+                  <div v-if="option.conditions && option.conditions.length > 0" class="shipping-option-conditions">
+                    <ul class="mb-0">
+                      <li v-for="(condition, idx) in option.conditions" :key="idx">
+                        {{ condition }}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Método de Pago (Simulado) -->
+            <section class="mb-5">
+              <h4 class="mb-3">Método de Pago</h4>
+              
+              <div class="alert alert-info mb-3">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                <strong>Modo Demo:</strong> Esta es una simulación. Usa los datos de prueba proporcionados.
+              </div>
+
+              <div class="payment-card-form">
+                <div class="row g-3">
+                  <!-- Número de tarjeta -->
+                  <div class="col-12">
+                    <label class="form-label">Número de tarjeta *</label>
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-text">
+                        <i class="fa-solid fa-credit-card"></i>
+                      </span>
+                      <input 
+                        v-model="paymentForm.cardNumber"
+                        type="text" 
+                        class="form-control" 
+                        :class="{ 'is-invalid': errors.cardNumber }"
+                        placeholder="1234 5678 9012 3456"
+                        maxlength="19"
+                        @input="formatCardNumber"
+                        required
+                      />
+                      <div v-if="errors.cardNumber" class="invalid-feedback">
+                        {{ errors.cardNumber }}
+                      </div>
+                    </div>
+                    <small class="text-muted">
+                      💳 Prueba: <code class="bg-light px-2 py-1 rounded">4532 1488 0343 6467</code>
+                    </small>
+                  </div>
+
+                  <!-- Nombre en la tarjeta -->
+                  <div class="col-12">
+                    <label class="form-label">Nombre en la tarjeta *</label>
+                    <input 
+                      v-model="paymentForm.cardName"
+                      type="text" 
+                      class="form-control form-control-lg" 
+                      :class="{ 'is-invalid': errors.cardName }"
+                      placeholder="JUAN PEREZ"
+                      @input="validateCardName"
+                      required
+                    />
+                    <div v-if="errors.cardName" class="invalid-feedback">
+                      {{ errors.cardName }}
+                    </div>
+                  </div>
+
+                  <!-- Fecha de expiración y CVV -->
+                  <div class="col-md-6">
+                    <label class="form-label">Fecha de expiración *</label>
+                    <input 
+                      v-model="paymentForm.expiryDate"
+                      type="text" 
+                      class="form-control form-control-lg" 
+                      :class="{ 'is-invalid': errors.expiryDate }"
+                      placeholder="MM/AA"
+                      maxlength="5"
+                      @input="formatExpiryDate"
+                      required
+                    />
+                    <div v-if="errors.expiryDate" class="invalid-feedback">
+                      {{ errors.expiryDate }}
+                    </div>
+                    <small class="text-muted">💳 Prueba: <code class="bg-light px-2 py-1 rounded">12/25</code></small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">CVV *</label>
+                    <input 
+                      v-model="paymentForm.cvv"
+                      type="text" 
+                      class="form-control form-control-lg" 
+                      :class="{ 'is-invalid': errors.cvv }"
+                      placeholder="123"
+                      maxlength="4"
+                      @input="validateCVV"
+                      required
+                    />
+                    <div v-if="errors.cvv" class="invalid-feedback">
+                      {{ errors.cvv }}
+                    </div>
+                    <small class="text-muted">💳 Prueba: <code class="bg-light px-2 py-1 rounded">123</code></small>
+                  </div>
+                </div>
+
+                <!-- Indicador visual de tarjeta válida -->
+                <div v-if="isPaymentValid" class="alert alert-success mt-3 mb-0">
+                  <i class="fa-solid fa-check-circle me-2"></i>
+                  Información de pago válida
                 </div>
               </div>
             </section>
@@ -279,7 +410,7 @@
                   Procesando...
                 </span>
                 <span v-else>
-                  Pagar
+                  Completar Pedido
                   <i class="fa-solid fa-chevron-right ms-2"></i>
                 </span>
               </button>
@@ -308,37 +439,44 @@
                   <div class="item-details">
                     <h6>{{ item.name }}</h6>
                     <p class="text-muted small mb-0">
-                      {{ item.size }}
+                      <span v-if="item.size">{{ item.size }}</span>
+                      <span v-if="item.color"> • {{ item.color }}</span>
                     </p>
                   </div>
                   <div class="item-price">
-                    PEN {{ (item.price * item.quantity).toFixed(2) }}
+                    S/. {{ (item.price * item.quantity).toFixed(2) }}
                   </div>
                 </div>
               </div>
 
               <hr class="my-4" />
 
-              <!-- Subtotal y total -->
+              <!-- Subtotal, envío y total -->
               <div class="summary-totals">
                 <div class="d-flex justify-content-between mb-2">
                   <span>Subtotal</span>
-                  <span class="fw-bold">PEN {{ cartStore.subtotal.toFixed(2) }}</span>
+                  <span class="fw-bold">S/. {{ cartStore.subtotal.toFixed(2) }}</span>
                 </div>
                 
                 <div class="d-flex justify-content-between mb-2">
-                  <span>
-                    Envío
-                    <i class="fa-solid fa-circle-info ms-1 text-muted"></i>
+                  <span>Envío</span>
+                  <span :class="shippingCost > 0 ? 'fw-bold' : 'text-muted'">
+                    {{ shippingCostDisplay }}
                   </span>
-                  <span class="text-muted small">Calculado en el siguiente paso</span>
                 </div>
 
                 <hr class="my-3" />
 
                 <div class="d-flex justify-content-between align-items-center">
                   <h5 class="mb-0">Total</h5>
-                  <h4 class="mb-0 fw-bold">PEN {{ cartStore.total.toFixed(2) }}</h4>
+                  <h4 class="mb-0 fw-bold">S/. {{ finalTotal.toFixed(2) }}</h4>
+                </div>
+
+                <!-- Nota de conversión para envíos internacionales -->
+                <div v-if="isInternational && selectedShippingOption" class="alert alert-warning mt-3 mb-0 small">
+                  <i class="fa-solid fa-info-circle me-1"></i>
+                  Envío internacional: ${{ selectedShippingOption.cost }} USD
+                  (≈ S/. {{ (selectedShippingOption.cost * 3.75).toFixed(2) }})
                 </div>
               </div>
             </div>
@@ -372,11 +510,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAuth } from '@/composables/useAuth'
 import { supabase } from '@/supabase'
+import { 
+  COUNTRIES, 
+  PROVINCES, 
+  getShippingOptions,
+  formatShippingCost as formatCost
+} from '@/utils/shipping'
+import type { ShippingOption } from '@/types/shipping'
 import '@/assets/styles/checkout.css'
 
 const router = useRouter()
@@ -385,11 +530,11 @@ const { isAuthenticated, user } = useAuth()
 
 const isProcessing = ref(false)
 const showSuccessModal = ref(false)
+const selectedShippingOption = ref<ShippingOption | null>(null)
 
 const checkoutForm = ref({
   email: '',
   newsletter: false,
-  deliveryMethod: 'shipping',
   country: 'PE',
   firstName: '',
   lastName: '',
@@ -402,14 +547,199 @@ const checkoutForm = ref({
   phone: ''
 })
 
+const paymentForm = ref({
+  cardNumber: '',
+  cardName: '',
+  expiryDate: '',
+  cvv: ''
+})
+
 const errors = ref({
   firstName: '',
   lastName: '',
   documentId: '',
   postalCode: '',
-  phone: ''
+  phone: '',
+  cardNumber: '',
+  cardName: '',
+  expiryDate: '',
+  cvv: ''
 })
 
+// Computed properties
+const availableCountries = computed(() => COUNTRIES)
+
+const availableProvinces = computed(() => {
+  return PROVINCES[checkoutForm.value.country] || []
+})
+
+const isInternational = computed(() => checkoutForm.value.country !== 'PE')
+
+const availableShippingOptions = computed(() => {
+  if (!checkoutForm.value.country || !checkoutForm.value.province) {
+    return []
+  }
+  return getShippingOptions(
+    checkoutForm.value.country,
+    checkoutForm.value.province,
+    checkoutForm.value.district
+  )
+})
+
+const shippingCost = computed(() => {
+  if (!selectedShippingOption.value) return 0
+  if (selectedShippingOption.value.currency === 'USD') {
+    return selectedShippingOption.value.cost * 3.75 // Conversión USD a PEN
+  }
+  return selectedShippingOption.value.cost
+})
+
+const shippingCostDisplay = computed(() => {
+  if (!selectedShippingOption.value) {
+    return 'Seleccionar método de envío'
+  }
+  return formatCost(selectedShippingOption.value.cost, selectedShippingOption.value.currency)
+})
+
+const finalTotal = computed(() => {
+  return cartStore.subtotal + shippingCost.value
+})
+
+// Labels dinámicos según el país
+const documentLabel = computed(() => {
+  return checkoutForm.value.country === 'PE' ? 'DNI' : 'Documento de Identidad'
+})
+
+const documentPlaceholder = computed(() => {
+  return checkoutForm.value.country === 'PE' ? 'DNI (8 dígitos)' : 'Número de documento'
+})
+
+const documentHint = computed(() => {
+  return checkoutForm.value.country === 'PE' ? 'Ingrese su DNI de 8 dígitos' : 'Ingrese su documento de identidad'
+})
+
+const documentMaxLength = computed(() => {
+  return checkoutForm.value.country === 'PE' ? 8 : 20
+})
+
+const provinceLabel = computed(() => {
+  return checkoutForm.value.country === 'PE' ? 'Provincia' : 'Estado/Provincia'
+})
+
+const districtLabel = computed(() => {
+  const labels: Record<string, string> = {
+    PE: 'Distrito *',
+    AR: 'Ciudad',
+    CL: 'Comuna',
+    CO: 'Ciudad',
+    MX: 'Municipio',
+    US: 'City'
+  }
+  return labels[checkoutForm.value.country] || 'Ciudad'
+})
+
+const districtPlaceholder = computed(() => {
+  const placeholders: Record<string, string> = {
+    PE: 'Ej: Miraflores',
+    AR: 'Ej: Palermo',
+    CL: 'Ej: Providencia',
+    CO: 'Ej: Chapinero',
+    MX: 'Ej: Polanco',
+    US: 'Ex: Manhattan'
+  }
+  return placeholders[checkoutForm.value.country] || 'Ciudad'
+})
+
+const phonePlaceholder = computed(() => {
+  const placeholders: Record<string, string> = {
+    PE: 'Teléfono (9 dígitos)',
+    AR: 'Teléfono (10 dígitos)',
+    CL: 'Teléfono (9 dígitos)',
+    CO: 'Teléfono (10 dígitos)',
+    MX: 'Teléfono (10 dígitos)',
+    US: 'Phone (10 digits)'
+  }
+  return placeholders[checkoutForm.value.country] || 'Teléfono'
+})
+
+const phoneHint = computed(() => {
+  const hints: Record<string, string> = {
+    PE: 'Ingrese su número de 9 dígitos',
+    AR: 'Ingrese su número de 10 dígitos',
+    CL: 'Ingrese su número de 9 dígitos',
+    CO: 'Ingrese su número de 10 dígitos',
+    MX: 'Ingrese su número de 10 dígitos',
+    US: 'Enter your 10-digit phone number'
+  }
+  return hints[checkoutForm.value.country] || ''
+})
+
+const phoneMaxLength = computed(() => {
+  const lengths: Record<string, number> = {
+    PE: 9,
+    AR: 10,
+    CL: 9,
+    CO: 10,
+    MX: 10,
+    US: 10
+  }
+  return lengths[checkoutForm.value.country] || 15
+})
+
+const canProceedToPayment = computed(() => {
+  return (
+    cartStore.items.length > 0 &&
+    isFormValid.value &&
+    !hasErrors.value &&
+    !isProcessing.value &&
+    selectedShippingOption.value !== null &&
+    isPaymentValid.value
+  )
+})
+
+const hasErrors = computed(() => {
+  return Object.values(errors.value).some(error => error !== '')
+})
+
+const isPaymentValid = computed(() => {
+  return (
+    paymentForm.value.cardNumber.replace(/\s/g, '').length === 16 &&
+    paymentForm.value.cardName.trim().length >= 3 &&
+    paymentForm.value.expiryDate.length === 5 &&
+    paymentForm.value.cvv.length >= 3 &&
+    !errors.value.cardNumber &&
+    !errors.value.cardName &&
+    !errors.value.expiryDate &&
+    !errors.value.cvv
+  )
+})
+
+const isFormValid = computed(() => {
+  const basicValid = (
+    checkoutForm.value.email &&
+    checkoutForm.value.firstName &&
+    checkoutForm.value.lastName &&
+    checkoutForm.value.documentId &&
+    checkoutForm.value.address &&
+    checkoutForm.value.province &&
+    checkoutForm.value.phone &&
+    checkoutForm.value.country
+  )
+
+  // Para Perú, distrito es obligatorio
+  if (checkoutForm.value.country === 'PE') {
+    return basicValid && checkoutForm.value.district
+  }
+
+  // Para internacionales, código postal es obligatorio
+  if (isInternational.value) {
+    return basicValid && checkoutForm.value.postalCode
+  }
+
+  return basicValid
+})
+
+// Methods
 const validateName = (field: 'firstName' | 'lastName') => {
   const value = checkoutForm.value[field]
   const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/
@@ -427,23 +757,22 @@ const validateDocumentId = () => {
   const numbersOnly = value.replace(/\D/g, '')
   checkoutForm.value.documentId = numbersOnly
   
-  if (numbersOnly.length > 0 && numbersOnly.length < 8) {
-    errors.value.documentId = 'El DNI debe tener 8 dígitos'
-  } else if (numbersOnly.length === 8) {
-    errors.value.documentId = ''
-  } else if (numbersOnly.length === 0) {
+  if (checkoutForm.value.country === 'PE') {
+    if (numbersOnly.length > 0 && numbersOnly.length < 8) {
+      errors.value.documentId = 'El DNI debe tener 8 dígitos'
+    } else {
+      errors.value.documentId = ''
+    }
+  } else {
     errors.value.documentId = ''
   }
 }
 
 const validatePostalCode = () => {
   const value = checkoutForm.value.postalCode
-  const numbersOnly = value.replace(/\D/g, '')
-  checkoutForm.value.postalCode = numbersOnly
-  
-  if (numbersOnly.length > 0) {
-    errors.value.postalCode = ''
-  }
+  const cleaned = value.replace(/[^a-zA-Z0-9]/g, '')
+  checkoutForm.value.postalCode = cleaned
+  errors.value.postalCode = ''
 }
 
 const validatePhone = () => {
@@ -451,40 +780,104 @@ const validatePhone = () => {
   const numbersOnly = value.replace(/\D/g, '')
   checkoutForm.value.phone = numbersOnly
   
-  if (numbersOnly.length > 0 && numbersOnly.length < 9) {
-    errors.value.phone = 'El teléfono debe tener 9 dígitos'
-  } else if (numbersOnly.length === 9) {
-    errors.value.phone = ''
-  } else if (numbersOnly.length === 0) {
+  const maxLength = phoneMaxLength.value
+  if (numbersOnly.length > 0 && numbersOnly.length < maxLength) {
+    errors.value.phone = `El teléfono debe tener ${maxLength} dígitos`
+  } else {
     errors.value.phone = ''
   }
 }
 
-const hasErrors = computed(() => {
-  return Object.values(errors.value).some(error => error !== '')
-})
+// Validaciones de pago
+const formatCardNumber = () => {
+  let value = paymentForm.value.cardNumber.replace(/\s/g, '').replace(/\D/g, '')
+  
+  // Limitar a 16 dígitos
+  value = value.substring(0, 16)
+  
+  // Formatear con espacios cada 4 dígitos
+  const formatted = value.match(/.{1,4}/g)?.join(' ') || value
+  paymentForm.value.cardNumber = formatted
+  
+  // Validar longitud
+  if (value.length > 0 && value.length < 16) {
+    errors.value.cardNumber = 'El número de tarjeta debe tener 16 dígitos'
+  } else if (value.length === 16) {
+    // Validación simple de Luhn (opcional)
+    errors.value.cardNumber = ''
+  } else {
+    errors.value.cardNumber = ''
+  }
+}
 
-const isFormValid = computed(() => {
-  return (
-    checkoutForm.value.email &&
-    checkoutForm.value.firstName &&
-    checkoutForm.value.lastName &&
-    checkoutForm.value.documentId.length === 8 &&
-    checkoutForm.value.address &&
-    checkoutForm.value.district &&
-    checkoutForm.value.province &&
-    checkoutForm.value.phone.length === 9
-  )
-})
+const validateCardName = () => {
+  const value = paymentForm.value.cardName
+  // Solo letras y espacios
+  const cleaned = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').toUpperCase()
+  paymentForm.value.cardName = cleaned
+  
+  if (cleaned.length > 0 && cleaned.length < 3) {
+    errors.value.cardName = 'El nombre debe tener al menos 3 caracteres'
+  } else {
+    errors.value.cardName = ''
+  }
+}
 
-const canProceedToPayment = computed(() => {
-  return (
-    cartStore.items.length > 0 &&
-    isFormValid.value &&
-    !hasErrors.value &&
-    !isProcessing.value
-  )
-})
+const formatExpiryDate = () => {
+  let value = paymentForm.value.expiryDate.replace(/\D/g, '')
+  
+  if (value.length >= 2) {
+    value = value.substring(0, 2) + '/' + value.substring(2, 4)
+  }
+  
+  paymentForm.value.expiryDate = value
+  
+  if (value.length === 5) {
+    const month = value.split('/')[0]
+    const monthNum = parseInt(month)
+    
+    if (monthNum < 1 || monthNum > 12) {
+      errors.value.expiryDate = 'Mes inválido (01-12)'
+    } else {
+      errors.value.expiryDate = ''
+    }
+  } else if (value.length > 0) {
+    errors.value.expiryDate = 'Formato: MM/AA'
+  } else {
+    errors.value.expiryDate = ''
+  }
+}
+
+const validateCVV = () => {
+  const value = paymentForm.value.cvv.replace(/\D/g, '')
+  paymentForm.value.cvv = value.substring(0, 4)
+  
+  if (value.length > 0 && value.length < 3) {
+    errors.value.cvv = 'El CVV debe tener 3 o 4 dígitos'
+  } else {
+    errors.value.cvv = ''
+  }
+}
+
+const onCountryChange = () => {
+  checkoutForm.value.province = ''
+  checkoutForm.value.district = ''
+  checkoutForm.value.postalCode = ''
+  checkoutForm.value.documentId = ''
+  checkoutForm.value.phone = ''
+  selectedShippingOption.value = null
+  errors.value.documentId = ''
+  errors.value.phone = ''
+}
+
+const onProvinceChange = () => {
+  checkoutForm.value.district = ''
+  selectedShippingOption.value = null
+}
+
+const selectShippingOption = (option: ShippingOption) => {
+  selectedShippingOption.value = option
+}
 
 const goToSignIn = () => {
   router.push('/signin')
@@ -543,6 +936,11 @@ const proceedToPayment = async () => {
     return
   }
 
+  if (!selectedShippingOption.value) {
+    alert('Por favor selecciona un método de envío')
+    return
+  }
+
   if (!canProceedToPayment.value) return
 
   try {
@@ -556,10 +954,10 @@ const proceedToPayment = async () => {
       .from('orders')
       .insert({
         user_id: user.value.id,
-        user_email: user.value.email,
-        total: cartStore.total,
+        user_email: user.value.email || checkoutForm.value.email,
+        total: finalTotal.value,
         status: 'completed',
-        delivery_method: checkoutForm.value.deliveryMethod,
+        delivery_method: selectedShippingOption.value.id,
         shipping_address: {
           firstName: checkoutForm.value.firstName,
           lastName: checkoutForm.value.lastName,
@@ -571,7 +969,10 @@ const proceedToPayment = async () => {
           apartment: checkoutForm.value.apartment,
           district: checkoutForm.value.district,
           province: checkoutForm.value.province,
-          postalCode: checkoutForm.value.postalCode
+          postalCode: checkoutForm.value.postalCode,
+          shippingMethod: selectedShippingOption.value.label,
+          shippingCost: shippingCost.value,
+          deliveryTime: selectedShippingOption.value.deliveryTime
         }
       })
       .select()
@@ -621,9 +1022,24 @@ const closeSuccessModal = () => {
   router.push('/shop')
 }
 
+// Watch para auto-seleccionar el primer método de envío disponible
+watch(availableShippingOptions, (newOptions) => {
+  if (newOptions.length > 0 && !selectedShippingOption.value) {
+    const firstAvailable = newOptions.find(opt => opt.available)
+    if (firstAvailable) {
+      selectedShippingOption.value = firstAvailable
+    }
+  }
+})
+
 onMounted(() => {
   if (cartStore.items.length === 0) {
     console.warn('⚠️ El carrito está vacío')
+  }
+  
+  // Pre-llenar email si el usuario está autenticado
+  if (user.value?.email) {
+    checkoutForm.value.email = user.value.email
   }
 })
 </script>
