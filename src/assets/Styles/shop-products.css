@@ -1,0 +1,303 @@
+/* ========================================
+   DISEÑO MODERNO PARA SHOP - Inspirado en tiendas minimalistas
+   ======================================== */
+
+/* Contenedor principal con fondo oscuro */
+.shop-main-container {
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* Grid de productos - Diseño de 4 columnas */
+.modern-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 2rem 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Ajustes para tablet (3 columnas) */
+@media (max-width: 1200px) {
+  .modern-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+/* Ajustes para móvil grande (2 columnas) */
+@media (max-width: 768px) {
+  .modern-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
+/* Ajustes para móvil pequeño */
+@media (max-width: 576px) {
+  .modern-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* ========================================
+   TARJETA DE PRODUCTO - DISEÑO MODERNO
+   ======================================== */
+
+.modern-product-card {
+  position: relative;
+  background-color: #2a2a2a;
+  border-radius: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.modern-product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Badge agotado más moderno */
+.modern-badge-agotado {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Contenedor de imagen más alto */
+.modern-image-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 133%; /* Ratio 3:4 (más alto como en la referencia) */
+  background-color: #3a3a3a;
+  overflow: hidden;
+}
+
+.modern-product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-product-card:hover .modern-product-image {
+  transform: scale(1.08);
+}
+
+/* Overlay mejorado */
+.modern-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    transparent 100%
+  );
+  padding: 3rem 1.5rem 1.5rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.modern-product-card:hover .modern-overlay {
+  opacity: 1;
+}
+
+/* Botón moderno */
+.modern-btn-cart {
+  background-color: #fff;
+  color: #000;
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.modern-btn-cart:hover:not(:disabled) {
+  background-color: #000;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
+}
+
+.modern-btn-cart:disabled {
+  background-color: #555;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Información del producto */
+.modern-product-info {
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  background-color: #2a2a2a;
+  transition: background-color 0.3s ease;
+}
+
+.modern-product-card:hover .modern-product-info {
+  background-color: #323232;
+}
+
+.modern-product-name {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 0.6rem 0;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  text-transform: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.5em;
+}
+
+.modern-product-price {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   HEADER/TÍTULO DE SECCIÓN
+   ======================================== */
+
+.modern-section-title {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin: 0 0 2rem 0;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 2rem 0 0 0;
+}
+
+/* ========================================
+   RESPONSIVE REFINEMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+  .modern-product-info {
+    padding: 1rem 0.75rem;
+  }
+
+  .modern-product-name {
+    font-size: 0.8rem;
+    min-height: 2.2em;
+  }
+
+  .modern-product-price {
+    font-size: 0.75rem;
+  }
+
+  .modern-btn-cart {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+  }
+
+  .modern-section-title {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+  }
+
+  .modern-badge-agotado {
+    padding: 6px 14px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .modern-image-wrapper {
+    padding-top: 140%; /* Un poco más alto en móviles */
+  }
+
+  .modern-overlay {
+    padding: 2rem 1rem 1rem;
+  }
+}
+
+/* ========================================
+   ESTADOS DE LOADING Y VACÍO
+   ======================================== */
+
+.modern-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  color: #fff;
+}
+
+.modern-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #888;
+}
+
+.modern-empty-state h3 {
+  color: #aaa;
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 1rem;
+}
+
+.modern-empty-state p {
+  color: #777;
+  font-size: 1rem;
+}
+
+/* ========================================
+   SPINNER PERSONALIZADO
+   ======================================== */
+
+.modern-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

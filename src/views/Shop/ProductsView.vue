@@ -1,20 +1,18 @@
 <template>
-  <div class="products-view">
+  <div class="shop-main-container">
     <!-- Header de la página -->
     <div class="products-header">
       <div class="container-fluid px-4 px-lg-5">
-        <h1 class="products-title">Productos destacados</h1>
+        <h1 class="modern-section-title">Productos destacados</h1>
       </div>
     </div>
 
     <!-- Sección de productos -->
-    <section class="products-section">
+    <section>
       <div class="container-fluid px-4 px-lg-5">
         <!-- Loading state -->
-        <div v-if="loading" class="d-flex justify-content-center py-5">
-          <div class="spinner-border text-light" role="status">
-            <span class="visually-hidden">Cargando productos...</span>
-          </div>
+        <div v-if="loading" class="modern-loading-container">
+          <div class="modern-spinner"></div>
         </div>
 
         <!-- Error state -->
@@ -29,12 +27,12 @@
 
         <!-- Products grid -->
         <div v-else>
-          <div v-if="products.length === 0" class="text-center py-5">
-            <h3 class="text-light">No hay productos disponibles</h3>
-            <p class="text-muted">Los productos aparecerán aquí cuando estén disponibles.</p>
+          <div v-if="products.length === 0" class="modern-empty-state">
+            <h3>No hay productos disponibles</h3>
+            <p>Los productos aparecerán aquí cuando estén disponibles.</p>
           </div>
           
-          <div v-else class="products-grid">
+          <div v-else class="modern-products-grid">
             <ProductCard
               v-for="product in products"
               :key="product.id"
@@ -59,6 +57,7 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/supabase'
 import ProductCard from '@/components/ShopProductCard.vue'
+import '@/assets/styles/shop-products.css'
 
 interface Product {
   id: string
@@ -107,56 +106,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.products-view {
-  background-color: #1a1a1a;
-  min-height: 100vh;
-  padding-top: 80px; /* Espacio para el navbar */
-}
-
 .products-header {
-  padding: 3rem 0 2rem;
-  background: linear-gradient(180deg, #000 0%, #1a1a1a 100%);
-}
-
-.products-title {
-  color: #fff;
-  font-size: 2rem;
-  font-weight: 300;
-  letter-spacing: 2px;
-  margin: 0;
-}
-
-.products-section {
-  padding: 3rem 0;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 1rem 0;
-}
-
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 1rem;
-  }
-  
-  .products-title {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  padding-top: 100px;
 }
 </style>

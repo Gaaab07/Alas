@@ -1,16 +1,16 @@
 <template>
-  <div>
+  <div class="shop-main-container">
     <!-- Hero video -->
     <HeroVideo />
 
     <!-- Sección de productos -->
     <section class="py-5">
-      <div class="container-fluid px-4 px-lg-5 mt-5">
+      <div class="container-fluid px-4 px-lg-5">
+        <h1 class="modern-section-title">Productos destacados</h1>
+
         <!-- Loading state -->
-        <div v-if="loading" class="d-flex justify-content-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando productos...</span>
-          </div>
+        <div v-if="loading" class="modern-loading-container">
+          <div class="modern-spinner"></div>
         </div>
 
         <!-- Error state -->
@@ -25,12 +25,12 @@
 
         <!-- Products grid -->
         <div v-else>
-          <div v-if="products.length === 0" class="text-center py-5">
-            <h3 class="text-muted">No hay productos disponibles</h3>
-            <p class="text-muted">Los productos aparecerán aquí cuando estén disponibles.</p>
+          <div v-if="products.length === 0" class="modern-empty-state">
+            <h3>No hay productos disponibles</h3>
+            <p>Los productos aparecerán aquí cuando estén disponibles.</p>
           </div>
           
-          <div v-else class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+          <div v-else class="modern-products-grid">
             <ProductCard
               v-for="product in products"
               :key="product.id"
@@ -56,6 +56,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/supabase'
 import HeroVideo from '@/components/HeroVideo.vue'
 import ProductCard from '@/components/ShopProductCard.vue'
+import '@/assets/styles/shop-products.css'
 
 // Types
 interface Product {
@@ -85,7 +86,7 @@ const fetchProducts = async () => {
     const { data, error: fetchError } = await supabase
       .from('products')
       .select('*')
-      .gt('stock', 0) // Solo productos con stock disponible
+      .gt('stock', 0)
       .order('created_at', { ascending: false })
 
     if (fetchError) {
@@ -94,15 +95,7 @@ const fetchProducts = async () => {
 
     products.value = data || []
     
-    // Debug: Ver los datos que llegan
     console.log('Productos cargados:', products.value)
-    products.value.forEach((product, index) => {
-      console.log(`Producto ${index + 1}:`, {
-        name: product.name,
-        image_url: product.image_url,
-        price: product.price
-      })
-    })
   } catch (err) {
     console.error('Error fetching products:', err)
     error.value = err instanceof Error ? err.message : 'Error desconocido al cargar productos'
@@ -116,7 +109,7 @@ onMounted(() => {
   fetchProducts()
 })
 
-// Expose methods for potential parent component use
+// Expose methods
 defineExpose({
   fetchProducts,
   products,
@@ -125,24 +118,5 @@ defineExpose({
 </script>
 
 <style scoped>
-.spinner-border {
-  width: 3rem;
-  height: 3rem;
-}
-
-.alert {
-  margin: 2rem 0;
-}
-
-/* Opcional: Estilos para mejorar la UX */
-.row > * {
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 576px) {
-  .container-fluid {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-}
+/* Estilos específicos si son necesarios */
 </style>
