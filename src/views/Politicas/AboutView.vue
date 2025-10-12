@@ -62,7 +62,7 @@
           <div class="col-md-6 col-lg-3">
             <div class="value-card">
               <div class="value-icon">
-                <i class="fa-solid fa-palette"></i>
+                <i class="fa-solid fa-shirt"></i>
               </div>
               <h3 class="value-title">Estilo</h3>
               <p class="value-description">
@@ -126,11 +126,11 @@
                 </div>
                 <div class="location-detail">
                   <i class="fa-solid fa-envelope"></i>
-                  <span>contacto@alas.pe</span>
+                  <span>alasperu@gmail.com</span>
                 </div>
                 <div class="location-detail">
                   <i class="fa-solid fa-phone"></i>
-                  <span>+51 XXX XXX XXX</span>
+                  <span>+51 914 911 135</span>
                 </div>
               </div>
             </div>

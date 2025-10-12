@@ -924,6 +924,82 @@ const updateStock = async () => {
   return updates
 }
 
+interface OrderData {
+  id: string
+  created_at: string
+  total: number
+  user_email: string
+  user_id: string
+  status: string
+  delivery_method: string
+  shipping_address: Record<string, unknown>
+}
+
+const sendOrderConfirmationEmail = async (orderData: OrderData) => {
+  // ✅ AGREGAR ESTA VALIDACIÓN AL INICIO
+  if (!selectedShippingOption.value) {
+    console.error('❌ No hay método de envío seleccionado')
+    return false
+  }
+
+  try {
+    console.log('📧 Enviando email de confirmación...')
+     
+    const { data, error } = await supabase.functions.invoke('send-order-email-gmail', {
+      body: {
+        order: {
+          id: orderData.id,
+          user_id: user.value?.id || '',
+          user_email: checkoutForm.value.email,
+          total: finalTotal.value,
+          status: 'completed',
+          delivery_method: selectedShippingOption.value.id, // ✅ Ahora TypeScript sabe que no es null
+          shipping_address: {
+            firstName: checkoutForm.value.firstName,
+            lastName: checkoutForm.value.lastName,
+            documentId: checkoutForm.value.documentId,
+            email: checkoutForm.value.email,
+            phone: checkoutForm.value.phone,
+            country: checkoutForm.value.country,
+            address: checkoutForm.value.address,
+            apartment: checkoutForm.value.apartment,
+            district: checkoutForm.value.district,
+            province: checkoutForm.value.province,
+            postalCode: checkoutForm.value.postalCode,
+            shippingMethod: selectedShippingOption.value.label,
+            deliveryTime: selectedShippingOption.value.deliveryTime,
+            shippingCost: shippingCost.value  // Usa el computed que ya calcula la conversión USD->PEN
+          },
+          created_at: orderData.created_at
+        },
+        items: cartStore.items.map(item => ({
+          id: crypto.randomUUID(),
+          order_id: orderData.id,
+          product_id: item.id,
+          product_name: item.name,
+          product_price: item.price,
+          product_size: item.size,        // ✅ CAMBIO AQUÍ
+          product_color: item.color,      // ✅ CAMBIO AQUÍ
+          product_image_url: item.image_url,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity
+        }))
+      }
+    })
+
+    if (error) {
+      console.error('❌ Error enviando email:', error)
+      return false
+    }
+
+    console.log('✅ Email enviado exitosamente:', data)
+    return true
+  } catch (error) {
+    console.error('❌ Error en sendOrderConfirmationEmail:', error)
+    return false
+  }
+}
+
 const proceedToPayment = async () => {
   if (cartStore.items.length === 0) {
     alert('Tu carrito está vacío. Agrega productos antes de continuar.')
@@ -1005,7 +1081,8 @@ const proceedToPayment = async () => {
 
     console.log('✅ Orden creada:', order.id)
     console.log('📦 Stock actualizado:', stockUpdates)
-
+// 🟢 ENVIAR EMAIL
+    await sendOrderConfirmationEmail(order)
     cartStore.clearCart()
     showSuccessModal.value = true
 

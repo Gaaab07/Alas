@@ -1,3 +1,6 @@
+// src/types/order.ts
+import type { ShippingAddress } from './shipping'
+
 export interface Order {
   id: string
   user_id: string
@@ -5,7 +8,7 @@ export interface Order {
   total: number
   status: string
   delivery_method: string
-  shipping_address: ShippingAddress
+  shipping_address: ShippingAddress  // ✅ Ahora usa el tipo importado con las propiedades nuevas
   created_at: string
 }
 
@@ -23,19 +26,8 @@ export interface OrderItem {
   created_at: string
 }
 
-export interface ShippingAddress {
-  firstName: string
-  lastName: string
-  documentId: string
-  email: string
-  phone: string
-  country: string
-  address: string
-  apartment?: string
-  district: string
-  province: string
-  postalCode?: string
-}
+// ❌ ELIMINAR ESTA DEFINICIÓN DUPLICADA
+// Ya no necesitas definir ShippingAddress aquí porque la importas de shipping.ts
 
 export interface OrderWithItems extends Order {
   items: OrderItem[]

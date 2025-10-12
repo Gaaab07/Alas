@@ -38,6 +38,11 @@ export interface ShippingAddress {
   district: string
   province: string
   postalCode?: string
+  
+  // ✅ AGREGAR ESTAS 3 PROPIEDADES OPCIONALES
+  shippingMethod?: string    // Ej: "Envío Express - Lima"
+  deliveryTime?: string       // Ej: "24 horas"
+  shippingCost?: number       // Ej: 25
 }
 
 export interface ShippingCalculation {

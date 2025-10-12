@@ -126,6 +126,8 @@
                   DNI: {{ order.shipping_address.documentId }}
                 </p>
               </div>
+              
+              <!-- SECCIÓN CORREGIDA: Método de entrega -->
               <div class="col-md-6">
                 <h6 class="mb-2">
                   <i class="fa-solid fa-shipping-fast me-2 text-primary"></i>
@@ -134,17 +136,28 @@
                 <div class="delivery-info">
                   <div class="d-flex align-items-center mb-2">
                     <i class="fa-solid fa-2x me-3" 
-                       :class="order.delivery_method === 'shipping' ? 'fa-truck text-primary' : 'fa-store text-success'">
+                       :class="getDeliveryIcon(order.delivery_method)">
                     </i>
                     <div>
                       <p class="mb-0 fw-bold">
-                        {{ order.delivery_method === 'shipping' ? 'Envío a domicilio' : 'Retiro en tienda' }}
+                        {{ getDeliveryLabel(order.delivery_method) }}
                       </p>
-                      <small class="text-muted">
-                        {{ order.delivery_method === 'shipping' 
-                          ? 'El pedido será enviado a tu dirección' 
-                          : 'Puedes recoger tu pedido en nuestra tienda' 
-                        }}
+                      <small class="text-muted d-block">
+                        {{ getDeliveryDescription(order.delivery_method) }}
+                      </small>
+                      
+                      <!-- Info adicional del shipping_address -->
+                      <small v-if="order.shipping_address?.shippingMethod" class="d-block mt-1 text-primary">
+                        <i class="fa-solid fa-info-circle me-1"></i>
+                        {{ order.shipping_address.shippingMethod }}
+                      </small>
+                      <small v-if="order.shipping_address?.deliveryTime" class="d-block text-muted">
+                        <i class="fa-solid fa-clock me-1"></i>
+                        {{ order.shipping_address.deliveryTime }}
+                      </small>
+                      <small v-if="order.shipping_address?.shippingCost !== undefined" class="d-block text-success fw-bold">
+                        <i class="fa-solid fa-money-bill-wave me-1"></i>
+                        Costo de envío: S/. {{ order.shipping_address.shippingCost.toFixed(2) }}
                       </small>
                     </div>
                   </div>
@@ -232,6 +245,43 @@ const formatDate = (dateString: string) => {
     hour: '2-digit',
     minute: '2-digit'
   }).format(date)
+}
+
+// ✅ FUNCIONES CORREGIDAS PARA MOSTRAR EL MÉTODO DE ENTREGA CORRECTO
+const getDeliveryLabel = (method: string) => {
+  const labels: Record<string, string> = {
+    'pickup': 'Retiro en Tienda',
+    'express-lima': 'Envío Express - Lima',
+    'regular-lima': 'Envío Regular - Lima',
+    'province': 'Envío a Provincia',
+    'international': 'Envío Internacional',
+    'shipping': 'Envío a Domicilio' // Fallback para órdenes antiguas
+  }
+  return labels[method] || 'Método no especificado'
+}
+
+const getDeliveryIcon = (method: string) => {
+  const icons: Record<string, string> = {
+    'pickup': 'fa-store text-success',
+    'express-lima': 'fa-bolt text-warning',
+    'regular-lima': 'fa-truck text-primary',
+    'province': 'fa-truck text-info',
+    'international': 'fa-plane text-danger',
+    'shipping': 'fa-truck text-primary'
+  }
+  return icons[method] || 'fa-box text-secondary'
+}
+
+const getDeliveryDescription = (method: string) => {
+  const descriptions: Record<string, string> = {
+    'pickup': 'Puedes recoger tu pedido en nuestra tienda',
+    'express-lima': 'Entrega en 24 horas en Lima Metropolitana',
+    'regular-lima': 'Entrega en 3-5 días hábiles en Lima',
+    'province': 'Entrega en 3-7 días hábiles a provincia',
+    'international': 'Entrega en ~15 días hábiles vía DHL',
+    'shipping': 'El pedido será enviado a tu dirección'
+  }
+  return descriptions[method] || 'Consulta el estado de tu envío'
 }
 
 onMounted(() => {
