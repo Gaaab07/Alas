@@ -51,7 +51,7 @@
 }
 
 .politica-content p {
-  color: #666;
+  color: #000000;
   font-size: 1rem;
   line-height: 1.8;
   margin-bottom: 1rem;
@@ -70,7 +70,7 @@
 }
 
 .politica-content strong {
-  color: #333;
+  color: #000000;
   font-weight: 600;
 }
 

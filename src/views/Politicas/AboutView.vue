@@ -99,45 +99,58 @@
       </div>
     </section>
 
-    <!-- Location Section -->
-    <section class="about-location">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
-            <div class="location-image-wrapper">
-              <div class="location-image-placeholder">
-                <i class="fa-solid fa-map-location-dot"></i>
-              </div>
-            </div>
+ <!-- Location Section -->
+<section class="about-location">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+        <div class="location-image-wrapper" style="height: 100%;">
+          <div
+            class="location-image-placeholder"
+            style="width: 100%; height: 100%; min-height: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+          >
+            <iframe
+              src="https://www.google.com/maps?q=Lima,Peru&output=embed"
+              width="100%"
+              height="100%"
+              style="border:0;"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
-          <div class="col-lg-6 order-lg-1">
-            <div class="location-content">
-              <h2 class="section-title">Desde Lima para el Mundo</h2>
-              <p class="location-text">
-                Ubicados en Lima, Perú, nuestra marca lleva el espíritu vibrante 
-                y la energía de la ciudad a cada una de nuestras colecciones. 
-                Nos inspiramos en la riqueza cultural de nuestro país y la 
-                fusionamos con las tendencias urbanas globales.
-              </p>
-              <div class="location-details">
-                <div class="location-detail">
-                  <i class="fa-solid fa-location-dot"></i>
-                  <span>Lima, Perú</span>
-                </div>
-                <div class="location-detail">
-                  <i class="fa-solid fa-envelope"></i>
-                  <span>alasperu@gmail.com</span>
-                </div>
-                <div class="location-detail">
-                  <i class="fa-solid fa-phone"></i>
-                  <span>+51 914 911 135</span>
-                </div>
-              </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 order-lg-1">
+        <div class="location-content">
+          <h2 class="section-title">Desde Lima para el Mundo</h2>
+          <p class="location-text">
+            Ubicados en Lima, Perú, nuestra marca lleva el espíritu vibrante 
+            y la energía de la ciudad a cada una de nuestras colecciones. 
+            Nos inspiramos en la riqueza cultural de nuestro país y la 
+            fusionamos con las tendencias urbanas globales.
+          </p>
+          <div class="location-details">
+            <div class="location-detail">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Lima, Perú</span>
+            </div>
+            <div class="location-detail">
+              <i class="fa-solid fa-envelope"></i>
+              <span>alasperu@gmail.com</span>
+            </div>
+            <div class="location-detail">
+              <i class="fa-solid fa-phone"></i>
+              <span>+51 914 911 135</span>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
+
 
     <!-- Mission Section -->
     <section class="about-mission">

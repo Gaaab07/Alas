@@ -14,7 +14,7 @@
         <!-- Colección Verano -->
         <div class="collection-card collection-verano" @click="goToCollection('verano')">
           <img 
-            src="https://images.unsplash.com/photo-1523359346063-d879354c0ea5?w=800" 
+            src="https://images.pexels.com/photos/1247526/pexels-photo-1247526.jpeg" 
             alt="Colección Verano"
             class="collection-image"
           />
@@ -32,7 +32,7 @@
         <!-- Colección Invierno -->
         <div class="collection-card collection-invierno" @click="goToCollection('invierno')">
           <img 
-            src="https://images.unsplash.com/photo-1483118714900-540cf339fd46?w=800" 
+            src="https://images.pexels.com/photos/54204/pexels-photo-54204.jpeg" 
             alt="Colección Invierno"
             class="collection-image"
           />
@@ -68,7 +68,7 @@
         <!-- Colección Otoño -->
         <div class="collection-card collection-otono" @click="goToCollection('otono')">
           <img 
-            src="https://images.unsplash.com/photo-1504198266287-1659872e6590?w=800" 
+            src="https://images.pexels.com/photos/9832688/pexels-photo-9832688.jpeg" 
             alt="Colección Otoño"
             class="collection-image"
           />
