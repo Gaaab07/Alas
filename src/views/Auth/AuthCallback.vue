@@ -17,18 +17,11 @@ import { supabase } from '../../supabase'
 const router = useRouter()
 
 onMounted(async () => {
-  console.log('🔄 AuthCallback: Procesando callback de Google...')
-  
-  // Supabase maneja la sesión automáticamente en la URL /auth/v1/callback
   const { data } = await supabase.auth.getSession()
   
   if (data.session) {
-    console.log('✅ Sesión válida encontrada, redirigiendo al inicio...')
-    // Redirigir al inicio en lugar de welcome
     router.replace('/')
   } else {
-    console.log('❌ No hay sesión válida, redirigiendo al login...')
-    // Si no hay sesión válida, vuelve al login
     router.replace('/signin')
   }
 })

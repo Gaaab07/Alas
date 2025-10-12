@@ -1,14 +1,8 @@
 // supabase/functions/send-order-email-gmail/index.ts
 
 /// <reference lib="deno.ns" />
-// Deno Edge Function - Los errores de TS son normales en el editor
 
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
-
-// ============================================
-// TIPOS E INTERFACES
-// ============================================
-
 
 interface ShippingAddress {
   firstName: string
@@ -56,18 +50,10 @@ interface EmailPayload {
   items: OrderItem[]
 }
 
-// ============================================
-// CONFIGURACIÓN CORS
-// ============================================
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
-
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
 
 function getDeliveryLabel(method: string): string {
   const labels: Record<string, string> = {
@@ -191,13 +177,7 @@ function generateEmailHTML(order: Order, items: OrderItem[]): string {
 </html>`
 }
 
-
-// ============================================
-// FUNCIÓN PRINCIPAL
-// ============================================
-
 Deno.serve(async (req: Request) => {
-  // Manejar CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -205,9 +185,6 @@ Deno.serve(async (req: Request) => {
   try {
     const { order, items }: EmailPayload = await req.json()
 
-    console.log('📧 Enviando email para pedido:', order.id)
-
-    // Configurar cliente SMTP de Gmail
     const client = new SMTPClient({
       connection: {
         hostname: "smtp.gmail.com",
@@ -220,10 +197,8 @@ Deno.serve(async (req: Request) => {
       },
     })
 
-    // Generar HTML del email
     const emailHTML = generateEmailHTML(order, items)
 
-    // Enviar email
     await client.send({
       from: `ALAS Store <${Deno.env.get('GMAIL_USERNAME')}>`,
       to: order.user_email,
@@ -232,8 +207,6 @@ Deno.serve(async (req: Request) => {
     })
 
     await client.close()
-
-    console.log('✅ Email enviado exitosamente a:', order.user_email)
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email enviado correctamente' }),
@@ -244,8 +217,6 @@ Deno.serve(async (req: Request) => {
     )
 
   } catch (error) {
-    console.error('❌ Error al enviar email:', error)
-    
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
     
     return new Response(

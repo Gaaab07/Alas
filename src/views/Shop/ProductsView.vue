@@ -31,7 +31,7 @@
             <h3>No hay productos disponibles</h3>
             <p>Los productos aparecerán aquí cuando estén disponibles.</p>
           </div>
-          
+                  
           <div v-else class="modern-products-grid">
             <ProductCard
               v-for="product in products"
@@ -93,7 +93,6 @@ const fetchProducts = async () => {
 
     products.value = data || []
   } catch (err) {
-    console.error('Error fetching products:', err)
     error.value = err instanceof Error ? err.message : 'Error desconocido al cargar productos'
   } finally {
     loading.value = false

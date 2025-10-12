@@ -1,8 +1,5 @@
 // supabase/functions/send-order-email/index.ts
 
-// 
-// Deno Edge Function - Los errores de TS son normales en el editor
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
@@ -37,7 +34,6 @@ const corsHeaders = {
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -45,10 +41,8 @@ serve(async (req: Request) => {
   try {
     const orderData: OrderData = await req.json()
 
-    // Generar HTML del email
     const emailHtml = generateOrderEmailHTML(orderData)
 
-    // Enviar email con Resend
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -77,7 +71,6 @@ serve(async (req: Request) => {
       }
     )
   } catch (error) {
-    console.error('Error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {

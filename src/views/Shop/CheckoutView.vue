@@ -936,16 +936,12 @@ interface OrderData {
 }
 
 const sendOrderConfirmationEmail = async (orderData: OrderData) => {
-  // ✅ AGREGAR ESTA VALIDACIÓN AL INICIO
   if (!selectedShippingOption.value) {
-    console.error('❌ No hay método de envío seleccionado')
     return false
   }
 
   try {
-    console.log('📧 Enviando email de confirmación...')
-     
-    const { data, error } = await supabase.functions.invoke('send-order-email-gmail', {
+    await supabase.functions.invoke('send-order-email-gmail', {
       body: {
         order: {
           id: orderData.id,
@@ -953,7 +949,7 @@ const sendOrderConfirmationEmail = async (orderData: OrderData) => {
           user_email: checkoutForm.value.email,
           total: finalTotal.value,
           status: 'completed',
-          delivery_method: selectedShippingOption.value.id, // ✅ Ahora TypeScript sabe que no es null
+          delivery_method: selectedShippingOption.value.id,
           shipping_address: {
             firstName: checkoutForm.value.firstName,
             lastName: checkoutForm.value.lastName,
@@ -968,7 +964,7 @@ const sendOrderConfirmationEmail = async (orderData: OrderData) => {
             postalCode: checkoutForm.value.postalCode,
             shippingMethod: selectedShippingOption.value.label,
             deliveryTime: selectedShippingOption.value.deliveryTime,
-            shippingCost: shippingCost.value  // Usa el computed que ya calcula la conversión USD->PEN
+            shippingCost: shippingCost.value
           },
           created_at: orderData.created_at
         },
@@ -978,8 +974,8 @@ const sendOrderConfirmationEmail = async (orderData: OrderData) => {
           product_id: item.id,
           product_name: item.name,
           product_price: item.price,
-          product_size: item.size,        // ✅ CAMBIO AQUÍ
-          product_color: item.color,      // ✅ CAMBIO AQUÍ
+          product_size: item.size,
+          product_color: item.color,
           product_image_url: item.image_url,
           quantity: item.quantity,
           subtotal: item.price * item.quantity
@@ -987,15 +983,8 @@ const sendOrderConfirmationEmail = async (orderData: OrderData) => {
       }
     })
 
-    if (error) {
-      console.error('❌ Error enviando email:', error)
-      return false
-    }
-
-    console.log('✅ Email enviado exitosamente:', data)
     return true
-  } catch (error) {
-    console.error('❌ Error en sendOrderConfirmationEmail:', error)
+  } catch {
     return false
   }
 }
@@ -1022,10 +1011,10 @@ const proceedToPayment = async () => {
   try {
     isProcessing.value = true
 
-    // 1. Actualizar stock
-    const stockUpdates = await updateStock()
+   
+     await updateStock()
 
-    // 2. Crear la orden
+  
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -1058,7 +1047,7 @@ const proceedToPayment = async () => {
       throw new Error('Error al crear la orden: ' + orderError.message)
     }
 
-    // 3. Crear los items
+  
     const orderItems = cartStore.items.map(item => ({
       order_id: order.id,
       product_id: item.id,
@@ -1079,15 +1068,13 @@ const proceedToPayment = async () => {
       throw new Error('Error al guardar los productos: ' + itemsError.message)
     }
 
-    console.log('✅ Orden creada:', order.id)
-    console.log('📦 Stock actualizado:', stockUpdates)
-// 🟢 ENVIAR EMAIL
+  
+
     await sendOrderConfirmationEmail(order)
     cartStore.clearCart()
     showSuccessModal.value = true
 
   } catch (error) {
-    console.error('❌ Error:', error)
     alert(error instanceof Error ? error.message : 'Error al procesar la compra')
   } finally {
     isProcessing.value = false
@@ -1099,7 +1086,7 @@ const closeSuccessModal = () => {
   router.push('/shop')
 }
 
-// Watch para auto-seleccionar el primer método de envío disponible
+
 watch(availableShippingOptions, (newOptions) => {
   if (newOptions.length > 0 && !selectedShippingOption.value) {
     const firstAvailable = newOptions.find(opt => opt.available)
@@ -1111,10 +1098,10 @@ watch(availableShippingOptions, (newOptions) => {
 
 onMounted(() => {
   if (cartStore.items.length === 0) {
-    console.warn('⚠️ El carrito está vacío')
+  
   }
   
-  // Pre-llenar email si el usuario está autenticado
+ 
   if (user.value?.email) {
     checkoutForm.value.email = user.value.email
   }

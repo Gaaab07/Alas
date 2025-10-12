@@ -105,7 +105,6 @@ const fetchProducts = async () => {
       .select('*')
       .gt('stock', 0)
 
-    // Si es "all-products", mostrar todos
     if (collectionName.value !== 'all-products') {
       query = query.eq('collection', collectionName.value)
     }
@@ -115,15 +114,13 @@ const fetchProducts = async () => {
     if (error) throw error
 
     products.value = data || []
-    console.log(`✅ Productos de ${collectionName.value}:`, products.value.length)
-  } catch (error) {
-    console.error('Error cargando productos:', error)
+  } catch {
+    products.value = []
   } finally {
     loading.value = false
   }
 }
 
-// Watch para recargar cuando cambie la colección
 watch(collectionName, () => {
   fetchProducts()
 })

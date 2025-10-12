@@ -245,8 +245,8 @@ const reinitializeDropdown = async () => {
         }
         new window.bootstrap.Dropdown(dropdownToggleRef.value)
       }
-    } catch (error) {
-      console.log('Dropdown reinitialize:', error)
+    } catch  {
+     // console.log('Dropdown reinitialize:', error)
     }
   }
 }
@@ -286,8 +286,8 @@ const logout = async () => {
     router.push('/')
     closeDropdown()
     await reinitializeDropdown()
-  } catch (error) {
-    console.error('Error during logout:', error)
+  } catch  {
+   // console.error('Error during logout:', error)
   }
 }
 

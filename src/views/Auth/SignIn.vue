@@ -44,7 +44,6 @@ const mensaje = ref('')
 const email = ref('')
 const password = ref('')
 
-// Login con Google
 const loginGoogle = async () => {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -54,7 +53,6 @@ const loginGoogle = async () => {
 
     if (error) {
       mensaje.value = '❌ Error: ' + error.message
-      console.error(error)
       return
     }
 
@@ -65,11 +63,9 @@ const loginGoogle = async () => {
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     mensaje.value = '❌ Error inesperado: ' + errorMessage
-    console.error(err)
   }
 }
 
-// Login con Email y Contraseña
 const loginEmail = async () => {
   try {
     const { error } = await supabase.auth.signInWithPassword({
@@ -79,18 +75,14 @@ const loginEmail = async () => {
 
     if (error) {
       mensaje.value = '❌ Error: ' + error.message
-      console.error(error)
       return
     }
 
     mensaje.value = '✅ Inicio de sesión exitoso'
-    
-    // Redirigir al inicio usando el router de Vue
     await router.push('/')
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     mensaje.value = '❌ Error inesperado: ' + errorMessage
-    console.error(err)
   }
 }
 </script>

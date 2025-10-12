@@ -180,8 +180,8 @@ const handleSearch = async () => {
       if (error) throw error
 
       searchResults.value = data || []
-    } catch (error) {
-      console.error('Error buscando productos:', error)
+    } catch {
+      //console.error('Error buscando productos:', error)
       searchResults.value = []
     } finally {
       isSearching.value = false

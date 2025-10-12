@@ -10,7 +10,7 @@ const pinia = createPinia()
 
 // Función async para inicializar
 async function initApp() {
-  console.log('🚀 Inicializando aplicación...')
+
   
   const app = createApp(App)
   
@@ -20,12 +20,12 @@ async function initApp() {
   const { loadUser } = useAuth()
   await loadUser()
   
-  console.log('✅ Auth inicializado, montando app...')
+
   
   app.use(router)
   app.mount('#app')
   
-  console.log('✅ Aplicación montada')
+ 
 }
 
 // Iniciar la app

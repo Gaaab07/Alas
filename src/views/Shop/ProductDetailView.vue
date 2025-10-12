@@ -177,10 +177,8 @@ const availableSizes = ref(['XS', 'S', 'M', 'L'])
 
 const fetchProduct = async () => {
   loading.value = true
-  product.value = null // Reset product
+  product.value = null
   const productId = route.params.id as string
-
-  console.log('🔄 Cargando producto:', productId)
 
   try {
     const { data, error } = await supabase
@@ -192,15 +190,10 @@ const fetchProduct = async () => {
     if (error) throw error
 
     product.value = data
-    
-    // Reset estados
     quantity.value = 1
     selectedSize.value = data.size || ''
     showSuccessMessage.value = false
-    
-    console.log('✅ Producto cargado:', data.name)
-  } catch (error) {
-    console.error('❌ Error obteniendo producto:', error)
+  } catch {
     product.value = null
   } finally {
     loading.value = false
@@ -229,17 +222,13 @@ const addToCart = async () => {
 
   isAdding.value = true
 
-  // Añadir al carrito usando el store
   cartStore.addItem(product.value, quantity.value)
 
-  // Mostrar mensaje de éxito
   showSuccessMessage.value = true
 
-  // Simular un pequeño delay
   setTimeout(() => {
     isAdding.value = false
     
-    // Ocultar mensaje después de 3 segundos
     setTimeout(() => {
       showSuccessMessage.value = false
     }, 3000)
@@ -251,15 +240,11 @@ const handleImageError = (event: Event) => {
   target.style.display = 'none'
 }
 
-// IMPORTANTE: Watch para detectar cambios en el ID de la ruta
 watch(
   () => route.params.id,
   (newId, oldId) => {
     if (newId && newId !== oldId) {
-      console.log('🔄 Ruta cambió de', oldId, 'a', newId)
       fetchProduct()
-      
-      // Scroll to top cuando cambia de producto
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
@@ -271,7 +256,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Animación para el mensaje de éxito */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }

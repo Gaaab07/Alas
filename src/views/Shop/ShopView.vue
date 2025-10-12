@@ -29,7 +29,7 @@
             <h3>No hay productos disponibles</h3>
             <p>Los productos aparecerán aquí cuando estén disponibles.</p>
           </div>
-          
+                  
           <div v-else class="modern-products-grid">
             <ProductCard
               v-for="product in products"
@@ -58,7 +58,6 @@ import HeroVideo from '@/components/HeroVideo.vue'
 import ProductCard from '@/components/ShopProductCard.vue'
 import '@/assets/styles/shop-products.css'
 
-// Types
 interface Product {
   id: string
   name: string
@@ -72,12 +71,10 @@ interface Product {
   created_at: string
 }
 
-// Reactive data
 const products = ref<Product[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 
-// Methods
 const fetchProducts = async () => {
   try {
     loading.value = true
@@ -94,22 +91,17 @@ const fetchProducts = async () => {
     }
 
     products.value = data || []
-    
-    console.log('Productos cargados:', products.value)
   } catch (err) {
-    console.error('Error fetching products:', err)
     error.value = err instanceof Error ? err.message : 'Error desconocido al cargar productos'
   } finally {
     loading.value = false
   }
 }
 
-// Lifecycle
 onMounted(() => {
   fetchProducts()
 })
 
-// Expose methods
 defineExpose({
   fetchProducts,
   products,

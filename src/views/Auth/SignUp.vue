@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { supabase } from '../../supabase'
-import '@/assets/styles/signup.css'   // ✅ importamos los estilos externos
+import '@/assets/styles/signup.css'
 
 const email = ref('')
 const password = ref('')
@@ -42,11 +42,9 @@ const signupUser = async () => {
       } else {
         mensaje.value = '❌ Error: ' + error.message
       }
-      console.error(error)
       return
     }
 
-    // Si ya existía pero con Google, supabase no da error → chequeo extra
     if (data?.user?.identities?.length === 0) {
       mensaje.value = '⚠️ Ya tienes una cuenta creada con este correo. Inicia sesión con Google.'
       return
@@ -56,8 +54,6 @@ const signupUser = async () => {
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     mensaje.value = '❌ Error inesperado: ' + errorMessage
-    console.error(err)
   }
 }
-
 </script>
