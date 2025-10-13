@@ -319,8 +319,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/supabase'
-import '@/assets/styles/admin-products.css'
-import '@/assets/styles/pagination.css'
+import '@/assets/Styles/admin-products.css'
+import '@/assets/Styles/pagination.css'
 
 interface Product {
   id: string
