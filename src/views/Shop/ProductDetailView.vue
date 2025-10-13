@@ -162,7 +162,7 @@ import { useRoute } from 'vue-router'
 import { supabase } from '@/supabase'
 import { useCartStore } from '@/stores/cart'
 import type { Product } from '@/types/product'
-import '@/assets/styles/product-detail.css'
+import '@/assets/Styles/product-detail.css'
 
 const route = useRoute()
 const cartStore = useCartStore()

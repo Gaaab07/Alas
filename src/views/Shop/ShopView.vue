@@ -56,7 +56,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/supabase'
 import HeroVideo from '@/components/HeroVideo.vue'
 import ProductCard from '@/components/ShopProductCard.vue'
-import '@/assets/styles/shop-products.css'
+import '@/assets/Styles/shop-products.css'
 
 interface Product {
   id: string

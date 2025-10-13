@@ -99,5 +99,5 @@
 </template>
 
 <script setup lang="ts">
-import '@/assets/styles/politicas.css'
+import '@/assets/Styles/politicas.css'
 </script>

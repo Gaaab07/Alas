@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { supabase } from '../../supabase'
-import '@/assets/styles/signup.css'
+import '@/assets/Styles/signup.css'
 
 const email = ref('')
 const password = ref('')

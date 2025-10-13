@@ -185,7 +185,7 @@ import { ref, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { supabase } from '@/supabase'
 import type { OrderWithItems } from '@/types/order'
-import '@/assets/styles/orders.css'
+import '@/assets/Styles/orders.css'
 
 const { user } = useAuth()
 const orders = ref<OrderWithItems[]>([])

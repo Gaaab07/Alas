@@ -522,7 +522,7 @@ import {
   formatShippingCost as formatCost
 } from '@/utils/shipping'
 import type { ShippingOption } from '@/types/shipping'
-import '@/assets/styles/checkout.css'
+import '@/assets/Styles/checkout.css'
 
 const router = useRouter()
 const cartStore = useCartStore()

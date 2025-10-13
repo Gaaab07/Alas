@@ -90,8 +90,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/supabase'
 import ProductCard from '@/components/ShopProductCard.vue'
-import '@/assets/styles/shop-products.css'
-import '@/assets/styles/pagination.css'
+import '@/assets/Styles/shop-products.css'
+import '@/assets/Styles/pagination.css'
 
 interface Product {
   id: string
