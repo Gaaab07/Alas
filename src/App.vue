@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { useAutoLogout } from '@/composables/useAutoLogout'
-import '@/assets/styles/session-warning.css'
+import '@/assets/Styles/session-warning.css'
 
 // 2 minutos de inactividad, advertencia de 30 segundos antes
 const { showWarning, remainingSeconds, stayLoggedIn, performLogout } = useAutoLogout(2, 30)
