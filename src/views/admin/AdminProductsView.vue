@@ -182,7 +182,7 @@
         <div class="card-header bg-dark text-white">
           <h5 class="mb-0">
             <i class="fa-solid fa-list me-2"></i>
-            Productos Existentes ({{ products.length }})
+            Productos Existentes ({{ totalProducts }})
           </h5>
         </div>
         <div class="card-body">
@@ -194,73 +194,106 @@
           </div>
 
           <!-- Sin productos -->
-          <div v-else-if="products.length === 0" class="text-center py-5 text-muted">
+          <div v-else-if="totalProducts === 0" class="text-center py-5 text-muted">
             <i class="fa-solid fa-box-open fa-3x mb-3"></i>
             <p>No hay productos agregados aún</p>
           </div>
 
           <!-- Grid de productos -->
-          <div v-else class="row g-4">
-            <div v-for="product in products" :key="product.id" class="col-md-6 col-lg-4">
-              <div class="product-card">
-                <!-- Badge de stock -->
-                <div class="stock-badge" :class="getStockClass(product.stock)">
-                  Stock: {{ product.stock }}
-                </div>
-
-                <!-- Badge de colección -->
-                <div class="collection-badge" :class="`collection-${product.collection}`">
-                  {{ getCollectionLabel(product.collection) }}
-                </div>
-
-                <!-- Imagen -->
-                <div class="product-image">
-                  <img 
-                    :src="product.image_url || 'https://dummyimage.com/300x300/dee2e6/6c757d.jpg'" 
-                    :alt="product.name"
-                    @error="handleProductImageError"
-                  />
-                </div>
-
-                <!-- Info -->
-                <div class="product-info">
-                  <h5 class="product-name">{{ product.name }}</h5>
-                  <p class="product-description">
-                    {{ product.description || 'Sin descripción' }}
-                  </p>
-                  
-                  <div class="product-details">
-                    <div class="detail-item">
-                      <strong>Precio:</strong> S/. {{ product.price.toFixed(2) }}
-                    </div>
-                    <div class="detail-item">
-                      <strong>Tipo:</strong> {{ product.category }}
-                    </div>
-                    <div class="detail-item" v-if="product.size">
-                      <strong>Talla:</strong> {{ product.size }}
-                    </div>
-                    <div class="detail-item" v-if="product.color">
-                      <strong>Color:</strong> {{ product.color }}
-                    </div>
+          <div v-else>
+            <div class="row g-4">
+              <div v-for="product in products" :key="product.id" class="col-md-6 col-lg-4">
+                <div class="product-card">
+                  <!-- Badge de stock -->
+                  <div class="stock-badge" :class="getStockClass(product.stock)">
+                    Stock: {{ product.stock }}
                   </div>
 
-                  <!-- Botones -->
-                  <div class="product-actions">
-                    <button 
-                      class="btn btn-sm btn-warning"
-                      @click="editProduct(product)"
-                    >
-                      <i class="fa-solid fa-edit"></i> Editar
-                    </button>
-                    <button 
-                      class="btn btn-sm btn-danger"
-                      @click="confirmDelete(product)"
-                    >
-                      <i class="fa-solid fa-trash"></i> Eliminar
-                    </button>
+                  <!-- Badge de colección -->
+                  <div class="collection-badge" :class="`collection-${product.collection}`">
+                    {{ getCollectionLabel(product.collection) }}
+                  </div>
+
+                  <!-- Imagen -->
+                  <div class="product-image">
+                    <img 
+                      :src="product.image_url || 'https://dummyimage.com/300x300/dee2e6/6c757d.jpg'" 
+                      :alt="product.name"
+                      @error="handleProductImageError"
+                    />
+                  </div>
+
+                  <!-- Info -->
+                  <div class="product-info">
+                    <h5 class="product-name">{{ product.name }}</h5>
+                    <p class="product-description">
+                      {{ product.description || 'Sin descripción' }}
+                    </p>
+                    
+                    <div class="product-details">
+                      <div class="detail-item">
+                        <strong>Precio:</strong> S/. {{ product.price.toFixed(2) }}
+                      </div>
+                      <div class="detail-item">
+                        <strong>Tipo:</strong> {{ product.category }}
+                      </div>
+                      <div class="detail-item" v-if="product.size">
+                        <strong>Talla:</strong> {{ product.size }}
+                      </div>
+                      <div class="detail-item" v-if="product.color">
+                        <strong>Color:</strong> {{ product.color }}
+                      </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="product-actions">
+                      <button 
+                        class="btn btn-sm btn-warning"
+                        @click="editProduct(product)"
+                      >
+                        <i class="fa-solid fa-edit"></i> Editar
+                      </button>
+                      <button 
+                        class="btn btn-sm btn-danger"
+                        @click="confirmDelete(product)"
+                      >
+                        <i class="fa-solid fa-trash"></i> Eliminar
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container">
+              <button 
+                class="pagination-arrow"
+                :disabled="currentPage === 1"
+                @click="goToPage(currentPage - 1)"
+              >
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              
+              <div class="pagination-numbers">
+                <button
+                  v-for="page in visiblePages"
+                  :key="page"
+                  class="pagination-number"
+                  :class="{ active: page === currentPage }"
+                  @click="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+              </div>
+              
+              <button 
+                class="pagination-arrow"
+                :disabled="currentPage === totalPages"
+                @click="goToPage(currentPage + 1)"
+              >
+                <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -284,9 +317,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/supabase'
 import '@/assets/styles/admin-products.css'
+import '@/assets/styles/pagination.css'
 
 interface Product {
   id: string
@@ -307,6 +341,9 @@ const saving = ref(false)
 const isEditing = ref(false)
 const showDeleteModal = ref(false)
 const productToDelete = ref<Product | null>(null)
+const currentPage = ref(1)
+const itemsPerPage = 9
+const totalProducts = ref(0)
 
 const form = ref({
   id: '',
@@ -319,6 +356,27 @@ const form = ref({
   size: '',
   color: '',
   image_url: ''
+})
+
+// Computed properties
+const totalPages = computed(() => Math.ceil(totalProducts.value / itemsPerPage))
+
+// Páginas visibles en la paginación (máximo 5)
+const visiblePages = computed(() => {
+  const pages: number[] = []
+  const maxVisible = 5
+  let start = Math.max(1, currentPage.value - Math.floor(maxVisible / 2))
+  const end = Math.min(totalPages.value, start + maxVisible - 1)
+  
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(1, end - maxVisible + 1)
+  }
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  
+  return pages
 })
 
 const getCollectionLabel = (collection: string | null) => {
@@ -340,10 +398,24 @@ const getStockClass = (stock: number) => {
 const fetchProducts = async () => {
   try {
     loading.value = true
+    
+    // Obtener el total de productos para la paginación
+    const { count } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+    
+    totalProducts.value = count || 0
+    
+    // Calcular el offset para la paginación
+    const from = (currentPage.value - 1) * itemsPerPage
+    const to = from + itemsPerPage - 1
+    
+    // Obtener productos con paginación
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false })
+      .range(from, to)
 
     if (error) throw error
     products.value = data || []
@@ -352,6 +424,18 @@ const fetchProducts = async () => {
     alert('Error al cargar productos')
   } finally {
     loading.value = false
+  }
+}
+
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    fetchProducts()
+    // Scroll hacia la lista de productos
+    const productsList = document.querySelector('.card.shadow-sm:last-of-type')
+    if (productsList) {
+      productsList.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
   }
 }
 
@@ -389,6 +473,8 @@ const saveProduct = async () => {
     }
 
     resetForm()
+    // Volver a la primera página después de agregar/editar
+    currentPage.value = 1
     fetchProducts()
   } catch (error) {
     console.error('Error:', error)
@@ -438,6 +524,13 @@ const deleteProduct = async () => {
     alert('✅ Producto eliminado')
     showDeleteModal.value = false
     productToDelete.value = null
+    
+    // Si estamos en una página que ya no existe después de eliminar, volver a la anterior
+    const newTotalPages = Math.ceil((totalProducts.value - 1) / itemsPerPage)
+    if (currentPage.value > newTotalPages && newTotalPages > 0) {
+      currentPage.value = newTotalPages
+    }
+    
     fetchProducts()
   } catch (error) {
     console.error('Error:', error)

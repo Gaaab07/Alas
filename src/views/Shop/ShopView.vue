@@ -2,17 +2,17 @@
   <div class="shop-main-container">
     <!-- Hero video -->
     <HeroVideo />
-
+    
     <!-- Sección de productos -->
     <section class="py-5">
       <div class="container-fluid px-4 px-lg-5">
         <h1 class="modern-section-title">Productos destacados</h1>
-
+        
         <!-- Loading state -->
         <div v-if="loading" class="modern-loading-container">
           <div class="modern-spinner"></div>
         </div>
-
+        
         <!-- Error state -->
         <div v-else-if="error" class="alert alert-danger" role="alert">
           <h4 class="alert-heading">Error al cargar productos</h4>
@@ -22,14 +22,14 @@
             <i class="fas fa-redo"></i> Intentar de nuevo
           </button>
         </div>
-
+        
         <!-- Products grid -->
         <div v-else>
           <div v-if="products.length === 0" class="modern-empty-state">
             <h3>No hay productos disponibles</h3>
             <p>Los productos aparecerán aquí cuando estén disponibles.</p>
           </div>
-                  
+                    
           <div v-else class="modern-products-grid">
             <ProductCard
               v-for="product in products"
@@ -79,17 +79,18 @@ const fetchProducts = async () => {
   try {
     loading.value = true
     error.value = null
-
+    
     const { data, error: fetchError } = await supabase
       .from('products')
       .select('*')
       .gt('stock', 0)
       .order('created_at', { ascending: false })
-
+      .limit(8)  // Solo obtener 6 productos
+    
     if (fetchError) {
       throw fetchError
     }
-
+    
     products.value = data || []
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Error desconocido al cargar productos'
