@@ -138,7 +138,7 @@
             </div>
             <div class="location-detail">
               <i class="fa-solid fa-envelope"></i>
-              <span>alasperu@gmail.com</span>
+              <span>soportealasperu@gmail.com</span>
             </div>
             <div class="location-detail">
               <i class="fa-solid fa-phone"></i>

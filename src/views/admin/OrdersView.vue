@@ -73,6 +73,7 @@
                   <img 
                     :src="item.product_image_url || 'https://dummyimage.com/80x80/dee2e6/6c757d.jpg'" 
                     :alt="item.product_name"
+                    loading="lazy"
                   />
                 </div>
                 <div class="item-details flex-grow-1">

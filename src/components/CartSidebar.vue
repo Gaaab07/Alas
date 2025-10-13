@@ -47,6 +47,7 @@
               <img 
                 :src="item.image_url || 'https://dummyimage.com/100x100/dee2e6/6c757d.jpg'" 
                 :alt="item.name"
+                loading="lazy"  
               />
             </div>
 

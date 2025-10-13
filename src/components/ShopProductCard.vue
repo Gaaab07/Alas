@@ -12,6 +12,7 @@
         :alt="name"
         class="modern-product-image"
         @error="handleImageError"
+        loading="lazy" 
       />
       
       <!-- Overlay con botón al hacer hover -->

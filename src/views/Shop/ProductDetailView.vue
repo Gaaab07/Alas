@@ -24,6 +24,7 @@
             v-if="product.image_url" 
             :src="product.image_url" 
             :alt="product.name"
+             loading="lazy"
             class="product-image"
             @error="handleImageError"
           />
