@@ -190,7 +190,7 @@
 import { onMounted } from 'vue'
 
 onMounted(() => {
-  // Scroll to top when component mounts
+  // Scroll to top when component mount
   window.scrollTo(0, 0)
 })
 </script>
