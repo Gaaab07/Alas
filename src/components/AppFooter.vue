@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import '@/assets/styles/footer.css'
+import '@/assets/Styles/footer.css'
 
 const currentYear = computed(() => new Date().getFullYear())
 </script>

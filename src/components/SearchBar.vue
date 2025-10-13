@@ -107,7 +107,7 @@
 import { ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
-import '@/assets/styles/search-bar.css'
+import '@/assets/Styles/search-bar.css'
 
 interface Product {
   id: string

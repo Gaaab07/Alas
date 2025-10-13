@@ -180,7 +180,7 @@ import { useAuth } from '@/composables/useAuth'
 import { useCartStore } from '@/stores/cart'
 import CartSidebar from './CartSidebar.vue'
 import SearchBar from './SearchBar.vue'
-import '@/assets/styles/navbar.css'
+import '@/assets/Styles/navbar.css'
 
 const router = useRouter()
 const cartStore = useCartStore()
