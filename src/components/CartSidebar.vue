@@ -159,7 +159,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
-import '@/assets/styles/cart-sidebar.css'
+import '@/assets/Styles/cart-sidebar.css'
 
 const router = useRouter()
 const cartStore = useCartStore()
