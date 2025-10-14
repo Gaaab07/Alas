@@ -48,14 +48,16 @@ const loginGoogle = async () => {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'http://localhost:5173/auth/v1/callback' }
+      options: {
+        redirectTo: `${window.location.origin}/auth/v1/callback`
+      }
     })
-
+    
     if (error) {
       mensaje.value = '❌ Error: ' + error.message
       return
     }
-
+    
     if (data?.url) {
       mensaje.value = '🔄 Redirigiendo a Google...'
       window.location.href = data.url
