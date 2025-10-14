@@ -1,0 +1,260 @@
+/* ========================================
+   SIDEBAR DE FILTROS
+   ======================================== */
+
+.filters-sidebar {
+  width: 280px;
+  background: #2a2a2a;
+  padding: 2rem 1.5rem;
+  border-radius: 0;
+  flex-shrink: 0;
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+  position: sticky;
+  top: 100px;
+}
+
+.filters-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filters-sidebar::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #444;
+}
+
+.filters-header h3 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.close-filters {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  transition: color 0.3s ease;
+}
+
+.close-filters:hover {
+  color: #999;
+}
+
+/* Resultados */
+.filter-results {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #1a1a1a;
+  border-radius: 0;
+}
+
+.filter-results span {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.clear-all {
+  background: none;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.clear-all:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Grupos de filtros */
+.filter-group {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+}
+
+.filter-title {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-title i {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* Opciones de filtros */
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #ccc;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.filter-checkbox:hover {
+  color: #fff;
+}
+
+.filter-checkbox input[type="checkbox"],
+.filter-checkbox input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #fff;
+}
+
+/* Tallas en grid */
+.size-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.size-check {
+  background: #1a1a1a;
+  padding: 0.6rem;
+  border-radius: 0;
+  justify-content: center;
+  border: 1px solid #444;
+  transition: all 0.3s ease;
+}
+
+.size-check:hover {
+  background: #333;
+  border-color: #666;
+}
+
+.size-check input[type="checkbox"] {
+  display: none;
+}
+
+.size-check input[type="checkbox"]:checked + span {
+  font-weight: 600;
+}
+
+.size-check:has(input:checked) {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+/* Contenido de productos */
+.products-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Botón limpiar filtros en estado vacío */
+.btn-clear-filters {
+  margin-top: 1.5rem;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-clear-filters:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* ========================================
+   RESPONSIVE - MÓVIL
+   ======================================== */
+
+@media (max-width: 991px) {
+  .filters-sidebar {
+    width: 320px;
+    max-width: 85vw;
+    max-height: 100vh;
+    top: 0;
+    border-radius: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .close-filters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .products-content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .filters-sidebar {
+    width: 280px;
+    padding: 1.5rem 1rem;
+  }
+  
+  .filter-title {
+    font-size: 0.85rem;
+  }
+  
+  .filter-checkbox {
+    font-size: 0.8rem;
+  }
+}
