@@ -42,16 +42,16 @@
         <!-- Sección derecha con idioma, búsqueda, usuario y carrito -->
         <div class="d-flex align-items-center">
           <!-- Selector de idioma -->
-          <div class="dropdown me-3">
+          <!-- <div class="dropdown me-3">
             <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="dropdown">
               🇩🇪 PEN <i class="fa-solid fa-chevron-down ms-1"></i>
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">🇩🇪 PEN</a></li>
+              <li><a class="dropdown-item" href="#"> PEN</a></li>
               <li><a class="dropdown-item" href="#">🇺🇸 USD</a></li>
               <li><a class="dropdown-item" href="#">🇪🇸 EUR</a></li>
             </ul>
-          </div>
+          </div> -->
 
           <!-- BOTÓN DE BÚSQUEDA ACTUALIZADO -->
           <button 
