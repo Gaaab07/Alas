@@ -105,7 +105,7 @@
   color: #ffffff;
 }
 
-/* Selector de tallas */
+/* Selector de tallas - CORREGIDO */
 .size-selector h6,
 .quantity-selector h6 {
   color: #ffffff;
@@ -120,19 +120,24 @@
 }
 
 .size-option {
-  width: 50px;
-  height: 50px;
+  position: relative;
+  width: 60px;
+  height: 60px;
   border: 2px solid #444;
   background-color: transparent;
   color: #ffffff;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.size-option:hover {
+.size-option:hover:not(:disabled) {
   border-color: #ffffff;
+  background-color: #2a2a2a;
 }
 
 .size-option.active {
@@ -141,30 +146,101 @@
   border-color: #ffffff;
 }
 
-/* Selector de cantidad */
+.size-option:disabled,
+.size-option.disabled {
+  background-color: #1a1a1a;
+  color: #555;
+  border-color: #333;
+  cursor: not-allowed;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.size-option:disabled:hover,
+.size-option.disabled:hover {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+/* Badge de stock */
+.stock-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #dc3545;
+  color: white;
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.stock-badge.warning {
+  background: #ffc107;
+  color: #000;
+}
+
+/* Selector de cantidad - CORREGIDO */
 .quantity-selector .input-group {
   background-color: #2a2a2a;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
-  max-width: 150px;
+  max-width: 180px;
+  display: flex;
+  align-items: stretch;
+  border: 2px solid #444;
+}
+
+.quantity-selector .btn-outline-secondary {
+  border: none;
+  color: #ffffff;
+  background-color: #2a2a2a;
+  width: 45px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.quantity-selector .btn-outline-secondary:hover:not(:disabled) {
+  background-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.quantity-selector .btn-outline-secondary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* IMPORTANTE: Hacer visibles los iconos */
+.quantity-selector .btn-outline-secondary i {
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1;
+  display: block;
 }
 
 .quantity-selector .form-control {
   background-color: #2a2a2a;
   border: none;
+  border-left: 1px solid #444;
+  border-right: 1px solid #444;
   color: #ffffff;
   font-weight: 600;
+  width: 70px;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
-.quantity-selector .btn-outline-secondary {
-  border-color: #444;
-  color: #ffffff;
+.quantity-selector .form-control:focus {
+  outline: none;
+  box-shadow: none;
   background-color: #2a2a2a;
-}
-
-.quantity-selector .btn-outline-secondary:hover:not(:disabled) {
-  background-color: #3a3a3a;
-  border-color: #555;
   color: #ffffff;
 }
 

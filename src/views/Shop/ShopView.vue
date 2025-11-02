@@ -83,7 +83,6 @@ const fetchProducts = async () => {
     const { data, error: fetchError } = await supabase
       .from('products')
       .select('*')
-      .gt('stock', 0)
       .order('created_at', { ascending: false })
       .limit(8)  // Solo obtener 6 productos
     

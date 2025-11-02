@@ -101,14 +101,7 @@
       <div v-if="cartStore.items.length > 0" class="cart-footer">
         <!-- Sección de descuento -->
         <div class="discount-section">
-          <button 
-            class="btn btn-link w-100 text-start text-decoration-none"
-            type="button"
-            @click="showDiscountInput = !showDiscountInput"
-          >
-            DESCUENTO
-            <i class="fa-solid float-end mt-1" :class="showDiscountInput ? 'fa-minus' : 'fa-plus'"></i>
-          </button>
+          
           
           <div v-if="showDiscountInput" class="discount-input mt-2">
             <input 

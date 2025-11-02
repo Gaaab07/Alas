@@ -95,6 +95,9 @@
                     <option value="sandalia">Sandalias</option>
                     <option value="lentes">Lentes</option>
                   </optgroup>
+                  <optgroup label="Otros">
+                    <option value="otro">Otro</option>
+                  </optgroup>
                 </select>
               </div>
 
@@ -136,15 +139,59 @@
                 />
               </div>
 
-              <!-- URL de Imagen -->
+              <!-- Método de imagen -->
               <div class="col-12">
-                <label class="form-label fw-bold">URL de la Imagen</label>
-                <input 
-                  v-model="form.image_url"
-                  type="url" 
-                  class="form-control" 
-                  placeholder="https://example.com/imagen.jpg"
-                />
+                <label class="form-label fw-bold">Imagen del Producto</label>
+                <div class="btn-group w-100 mb-3" role="group">
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    name="imageMethod" 
+                    id="urlMethod" 
+                    value="url"
+                    v-model="imageMethod"
+                  >
+                  <label class="btn btn-outline-primary" for="urlMethod">
+                    <i class="fa-solid fa-link me-2"></i>URL
+                  </label>
+
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    name="imageMethod" 
+                    id="fileMethod" 
+                    value="file"
+                    v-model="imageMethod"
+                  >
+                  <label class="btn btn-outline-primary" for="fileMethod">
+                    <i class="fa-solid fa-upload me-2"></i>Subir Archivo
+                  </label>
+                </div>
+
+                <!-- Input de URL -->
+                <div v-if="imageMethod === 'url'">
+                  <input 
+                    v-model="form.image_url"
+                    type="url" 
+                    class="form-control" 
+                    placeholder="https://example.com/imagen.jpg"
+                  />
+                </div>
+
+                <!-- Input de Archivo -->
+                <div v-else>
+                  <input 
+                    type="file"
+                    ref="fileInput"
+                    class="form-control"
+                    accept="image/*"
+                    @change="handleFileSelect"
+                  />
+                  <small class="text-muted d-block mt-2">
+                    <i class="fa-solid fa-info-circle me-1"></i>
+                    Formatos permitidos: JPG, PNG, GIF, WEBP (máx. 5MB)
+                  </small>
+                </div>
               </div>
 
               <!-- Preview de imagen -->
@@ -158,9 +205,9 @@
 
             <!-- Botones -->
             <div class="d-flex gap-2 mt-4">
-              <button type="submit" class="btn btn-primary" :disabled="saving">
-                <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : (isEditing ? 'fa-save' : 'fa-plus')"></i>
-                {{ saving ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto') }}
+              <button type="submit" class="btn btn-primary" :disabled="saving || uploadingImage">
+                <i class="fa-solid" :class="uploadingImage ? 'fa-spinner fa-spin' : (saving ? 'fa-spinner fa-spin' : (isEditing ? 'fa-save' : 'fa-plus'))"></i>
+                {{ uploadingImage ? 'Subiendo imagen...' : (saving ? 'Guardando...' : (isEditing ? 'Actualizar Producto' : 'Agregar Producto')) }}
               </button>
               
               <button 
@@ -179,7 +226,7 @@
 
       <!-- Lista de productos -->
       <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-secondary text-white">
           <h5 class="mb-0">
             <i class="fa-solid fa-list me-2"></i>
             Productos Existentes ({{ totalProducts }})
@@ -345,6 +392,12 @@ const currentPage = ref(1)
 const itemsPerPage = 9
 const totalProducts = ref(0)
 
+// Nuevas variables para manejo de archivos
+const imageMethod = ref<'url' | 'file'>('url')
+const fileInput = ref<HTMLInputElement | null>(null)
+const selectedFile = ref<File | null>(null)
+const uploadingImage = ref(false)
+
 const form = ref({
   id: '',
   name: '',
@@ -439,9 +492,89 @@ const goToPage = (page: number) => {
   }
 }
 
+// Función para manejar selección de archivo
+const handleFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (!file) {
+    selectedFile.value = null
+    form.value.image_url = ''
+    return
+  }
+
+  // Validar tipo de archivo
+  if (!file.type.startsWith('image/')) {
+    alert('❌ Por favor selecciona un archivo de imagen válido')
+    if (fileInput.value) fileInput.value.value = ''
+    return
+  }
+
+  // Validar tamaño (5MB máximo)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('❌ La imagen es muy grande. Máximo 5MB')
+    if (fileInput.value) fileInput.value.value = ''
+    return
+  }
+
+  selectedFile.value = file
+  
+  // Crear preview local
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    form.value.image_url = e.target?.result as string
+  }
+  reader.readAsDataURL(file)
+}
+
+// Función para subir imagen a Supabase Storage
+const uploadImageToSupabase = async (file: File): Promise<string | null> => {
+  try {
+    uploadingImage.value = true
+    
+    // Generar nombre único para el archivo
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`
+    const filePath = `products/${fileName}`
+
+    // Subir archivo a Supabase Storage
+    const {  error } = await supabase.storage
+      .from('product-images') // Nombre del bucket
+      .upload(filePath, file)
+
+    if (error) throw error
+
+    // Obtener URL pública
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath)
+
+    return urlData.publicUrl
+  } catch (error) {
+    console.error('Error al subir imagen:', error)
+    alert('❌ Error al subir la imagen')
+    return null
+  } finally {
+    uploadingImage.value = false
+  }
+}
+
 const saveProduct = async () => {
   try {
     saving.value = true
+
+    let imageUrl = form.value.image_url
+
+    // Si hay un archivo seleccionado, subirlo primero
+    if (imageMethod.value === 'file' && selectedFile.value) {
+      const uploadedUrl = await uploadImageToSupabase(selectedFile.value)
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl
+      } else {
+        alert('❌ No se pudo subir la imagen. Intenta con una URL en su lugar.')
+        return
+      }
+    }
 
     const productData = {
       name: form.value.name,
@@ -452,7 +585,7 @@ const saveProduct = async () => {
       collection: form.value.collection || null,
       size: form.value.size || null,
       color: form.value.color || null,
-      image_url: form.value.image_url || null
+      image_url: imageUrl || null
     }
 
     if (isEditing.value) {
@@ -486,6 +619,9 @@ const saveProduct = async () => {
 
 const editProduct = (product: Product) => {
   isEditing.value = true
+  imageMethod.value = 'url' // Al editar, por defecto usar URL
+  selectedFile.value = null
+  
   form.value = {
     id: product.id,
     name: product.name,
@@ -540,6 +676,10 @@ const deleteProduct = async () => {
 
 const resetForm = () => {
   isEditing.value = false
+  imageMethod.value = 'url'
+  selectedFile.value = null
+  if (fileInput.value) fileInput.value.value = ''
+  
   form.value = {
     id: '',
     name: '',

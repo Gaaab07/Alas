@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { supabase } from '@/supabase'
 import type { Product } from '@/types/product'
 
 export interface CartItem extends Product {
@@ -21,33 +22,66 @@ export const useCartStore = defineStore('cart', () => {
   })
 
   const total = computed(() => {
-    // Aquí puedes agregar lógica de impuestos o envío
     return subtotal.value
   })
 
   // Acciones
-  const addItem = (product: Product, quantity: number = 1) => {
-    const existingItem = items.value.find(item => item.id === product.id)
+  const addItem = async (product: Product, quantity: number = 1) => {
+    try {
+      const { data: currentProduct, error } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', product.id)
+        .single()
 
-    if (existingItem) {
-      // Si ya existe, aumentar cantidad (respetando stock)
-      if (existingItem.quantity + quantity <= product.stock) {
-        existingItem.quantity += quantity
-      } else {
-        // Opcional: mostrar mensaje de que no hay suficiente stock
-        console.warn('No hay suficiente stock disponible')
-        existingItem.quantity = product.stock
+      if (error) throw error
+
+      if (!currentProduct) {
+        alert('Producto no encontrado')
+        return
       }
-    } else {
-      // Si no existe, agregar nuevo item
-      items.value.push({
-        ...product,
-        quantity: Math.min(quantity, product.stock)
-      })
-    }
 
-    // Abrir el carrito automáticamente
-    isCartOpen.value = true
+      product.stock = currentProduct.stock
+
+      if (currentProduct.stock === 0) {
+        alert('Este producto está agotado')
+        return
+      }
+
+      const existingItem = items.value.find(item => item.id === product.id)
+
+      if (existingItem) {
+        const totalQuantity = existingItem.quantity + quantity
+        
+        if (totalQuantity <= currentProduct.stock) {
+          existingItem.quantity = totalQuantity
+          existingItem.stock = currentProduct.stock
+        } else {
+          alert(`⚠️ Solo hay ${currentProduct.stock} unidades disponibles`)
+          existingItem.quantity = currentProduct.stock
+          existingItem.stock = currentProduct.stock
+        }
+      } else {
+        if (quantity <= currentProduct.stock) {
+          items.value.push({
+            ...product,
+            stock: currentProduct.stock,
+            quantity: quantity
+          })
+        } else {
+          alert(`⚠️ Solo hay ${currentProduct.stock} unidades disponibles`)
+          items.value.push({
+            ...product,
+            stock: currentProduct.stock,
+            quantity: currentProduct.stock
+          })
+        }
+      }
+
+      isCartOpen.value = true
+    } catch {
+      alert('❌ Error al verificar disponibilidad del producto')
+    }
   }
 
   const removeItem = (productId: string) => {
@@ -66,6 +100,7 @@ export const useCartStore = defineStore('cart', () => {
         item.quantity = quantity
       } else {
         item.quantity = item.stock
+        alert(`⚠️ Solo hay ${item.stock} unidades disponibles`)
       }
     }
   }
@@ -74,6 +109,8 @@ export const useCartStore = defineStore('cart', () => {
     const item = items.value.find(item => item.id === productId)
     if (item && item.quantity < item.stock) {
       item.quantity++
+    } else if (item) {
+      alert(`⚠️ Solo hay ${item.stock} unidades disponibles`)
     }
   }
 

@@ -103,7 +103,7 @@ const fetchProducts = async () => {
     let query = supabase
       .from('products')
       .select('*')
-      .gt('stock', 0)
+      
 
     if (collectionName.value !== 'all-products') {
       query = query.eq('collection', collectionName.value)

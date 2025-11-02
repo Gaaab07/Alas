@@ -334,7 +334,7 @@ const fetchFilterOptions = async () => {
     const { data } = await supabase
       .from('products')
       .select('category, color')
-      .gt('stock', 0)
+      
     
     if (data) {
       const uniqueCategories = [...new Set(data.map(p => p.category).filter(Boolean))]
@@ -352,7 +352,7 @@ const buildQuery = () => {
   let query = supabase
     .from('products')
     .select('*', { count: 'exact' })
-    .gt('stock', 0)
+    
 
   // Filtro por colección
   if (filters.value.collections.length > 0) {

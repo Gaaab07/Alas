@@ -1,6 +1,5 @@
 <template>
   <div class="product-detail-container">
-    <!-- Loading state -->
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Cargando...</span>
@@ -8,23 +7,20 @@
       <p class="mt-3">Cargando producto...</p>
     </div>
 
-    <!-- Producto no encontrado -->
     <div v-else-if="!product" class="text-center py-5">
       <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
       <h3 class="mt-3">Producto no encontrado</h3>
       <router-link to="/shop" class="btn btn-primary mt-3">Volver a la tienda</router-link>
     </div>
 
-    <!-- Detalle del producto -->
     <div v-else class="row g-0 product-detail-row">
-      <!-- Imagen del producto -->
       <div class="col-lg-6 product-image-section">
         <div class="image-container">
           <img 
-            v-if="product.image_url" 
-            :src="product.image_url" 
+            v-if="currentVariant?.image_url" 
+            :src="currentVariant.image_url" 
             :alt="product.name"
-             loading="lazy"
+            loading="lazy"
             class="product-image"
             @error="handleImageError"
           />
@@ -35,7 +31,6 @@
         </div>
       </div>
 
-      <!-- Información del producto -->
       <div class="col-lg-6 product-info-section">
         <div class="product-info">
           <h1 class="product-title">{{ product.name }}</h1>
@@ -48,14 +43,9 @@
             <p>{{ product.description }}</p>
           </div>
 
-          <!-- Información de medidas (si existen) -->
-          <div v-if="product.size || product.color || product.category" class="product-specs">
-            <h6 class="fw-bold mb-3">Detalles:</h6>
+          <div v-if="product.color || product.category" class="product-specs">
+            <h6 class="mb-3 text-white">Detalles:</h6>
             <div class="specs-grid">
-              <div v-if="product.size" class="spec-item">
-                <span class="spec-label">Talla:</span>
-                <span class="spec-value">{{ product.size }}</span>
-              </div>
               <div v-if="product.color" class="spec-item">
                 <span class="spec-label">Color:</span>
                 <span class="spec-value">{{ product.color }}</span>
@@ -67,27 +57,34 @@
             </div>
           </div>
 
-          <!-- Selector de talla -->
           <div class="size-selector mb-4">
             <h6>Talla</h6>
-            <div class="size-options">
+            <div v-if="loadingVariants" class="text-muted-custom">
+              <i class="bi bi-hourglass-split me-2"></i>Cargando tallas...
+            </div>
+            <div v-else class="size-options">
               <button 
                 v-for="size in availableSizes" 
-                :key="size"
+                :key="size.name"
                 class="size-option"
-                :class="{ active: selectedSize === size }"
-                @click="selectedSize = size"
+                :class="{ 
+                  active: selectedSize === size.name,
+                  disabled: size.stock === 0
+                }"
+                :disabled="size.stock === 0"
+                @click="selectSize(size)"
               >
-                {{ size }}
+                {{ size.name }}
+                <span v-if="size.stock === 0" class="stock-badge">Agotado</span>
               </button>
             </div>
             <p v-if="!selectedSize" class="text-muted-custom small mt-2">
               <i class="bi bi-info-circle"></i>
-              Nota: De no encontrar tu talla es porque se encuentra agotada.
+              Selecciona una talla disponible para continuar.
             </p>
+           
           </div>
 
-          <!-- Selector de cantidad -->
           <div class="quantity-selector mb-4">
             <h6>Cantidad</h6>
             <div class="input-group">
@@ -97,35 +94,35 @@
                 @click="decreaseQuantity"
                 :disabled="quantity <= 1"
               >
-                <i class="bi bi-dash"></i>
+                <i class="fa-solid fa-minus"></i>
               </button>
               <input 
                 type="number" 
                 class="form-control text-center" 
                 v-model.number="quantity"
                 min="1"
-                :max="product.stock"
+                :max="maxStock"
+                readonly
               />
               <button 
                 class="btn btn-outline-secondary" 
                 type="button"
                 @click="increaseQuantity"
-                :disabled="quantity >= product.stock"
+                :disabled="quantity >= maxStock"
               >
-                <i class="bi bi-plus"></i>
+                <i class="fa-solid fa-plus"></i>
               </button>
             </div>
             <p class="text-muted-custom small mt-2">
-              Stock disponible: {{ product.stock }} unidades
+              Stock disponible: {{ maxStock }} unidades
             </p>
           </div>
 
-          <!-- Botones de acción -->
           <div class="action-buttons">
             <button 
               class="btn btn-primary btn-lg w-100 mb-3"
               @click="addToCart"
-              :disabled="!selectedSize || product.stock === 0 || isAdding"
+              :disabled="!selectedSize || maxStock === 0 || isAdding"
             >
               <span v-if="isAdding">
                 <i class="bi bi-hourglass-split me-2"></i>
@@ -133,7 +130,7 @@
               </span>
               <span v-else>
                 <i class="bi bi-cart-plus me-2"></i>
-                {{ product.stock === 0 ? 'Agotado' : 'COMPRAR AHORA' }}
+                {{ maxStock === 0 ? 'Agotado' : 'COMPRAR AHORA' }}
               </span>
             </button>
             
@@ -143,7 +140,6 @@
             </button>
           </div>
 
-          <!-- Mensaje de éxito -->
           <Transition name="fade">
             <div v-if="showSuccessMessage" class="alert alert-success-custom mt-3">
               <i class="bi bi-check-circle-fill me-2"></i>
@@ -157,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/supabase'
 import { useCartStore } from '@/stores/cart'
@@ -169,31 +165,100 @@ const cartStore = useCartStore()
 
 const product = ref<Product | null>(null)
 const loading = ref(true)
+const loadingVariants = ref(false)
 const selectedSize = ref('')
 const quantity = ref(1)
 const showSuccessMessage = ref(false)
 const isAdding = ref(false)
+const productVariants = ref<Product[]>([])
+const availableSizes = ref<{ name: string, stock: number, variantId: string }[]>([])
 
-const availableSizes = ref(['XS', 'S', 'M', 'L'])
+const currentVariant = computed(() => {
+  if (!selectedSize.value) return product.value
+  return productVariants.value.find(v => v.size === selectedSize.value) || product.value
+})
+
+const maxStock = computed(() => {
+  const size = availableSizes.value.find(s => s.name === selectedSize.value)
+  return size ? size.stock : 0
+})
+
+const loadProductVariants = async (baseProduct: Product) => {
+  loadingVariants.value = true
+  try {
+    if (baseProduct.product_group) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('product_group', baseProduct.product_group)
+        .order('size', { ascending: true })
+      if (error) throw error
+      productVariants.value = data || []
+    } else {
+      const baseName = baseProduct.name.replace(/ - Talla .*/i, '').trim()
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .ilike('name', `${baseName}%`)
+        .order('size', { ascending: true })
+      if (error) throw error
+      productVariants.value = data || []
+    }
+
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+    const sizesMap = new Map<string, { stock: number, variantId: string }>()
+
+    productVariants.value.forEach(variant => {
+      if (variant.size) {
+        sizesMap.set(variant.size, {
+          stock: variant.stock,
+          variantId: variant.id
+        })
+      }
+    })
+
+    availableSizes.value = sizeOrder
+      .filter(size => sizesMap.has(size))
+      .map(size => ({
+        name: size,
+        stock: sizesMap.get(size)!.stock,
+        variantId: sizesMap.get(size)!.variantId
+      }))
+
+    const firstAvailable = availableSizes.value.find(s => s.stock > 0)
+    if (firstAvailable) selectedSize.value = firstAvailable.name
+    else selectedSize.value = ''
+  } catch {
+    availableSizes.value = []
+  } finally {
+    loadingVariants.value = false
+  }
+}
+
+const selectSize = (size: { name: string, stock: number, variantId: string }) => {
+  if (size.stock > 0) {
+    selectedSize.value = size.name
+    if (quantity.value > size.stock) {
+      quantity.value = size.stock
+    }
+  }
+}
 
 const fetchProduct = async () => {
   loading.value = true
   product.value = null
   const productId = route.params.id as string
-
   try {
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .eq('id', productId)
       .single()
-
     if (error) throw error
-
     product.value = data
     quantity.value = 1
-    selectedSize.value = data.size || ''
     showSuccessMessage.value = false
+    await loadProductVariants(data)
   } catch {
     product.value = null
   } finally {
@@ -202,7 +267,7 @@ const fetchProduct = async () => {
 }
 
 const increaseQuantity = () => {
-  if (product.value && quantity.value < product.value.stock) {
+  if (quantity.value < maxStock.value) {
     quantity.value++
   }
 }
@@ -218,18 +283,12 @@ const addToCart = async () => {
     alert('Por favor selecciona una talla')
     return
   }
-
-  if (!product.value) return
-
+  if (!currentVariant.value) return
   isAdding.value = true
-
-  cartStore.addItem(product.value, quantity.value)
-
+  cartStore.addItem(currentVariant.value, quantity.value)
   showSuccessMessage.value = true
-
   setTimeout(() => {
     isAdding.value = false
-    
     setTimeout(() => {
       showSuccessMessage.value = false
     }, 3000)
@@ -260,7 +319,6 @@ onMounted(() => {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
