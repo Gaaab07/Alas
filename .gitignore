@@ -35,3 +35,6 @@ coverage
 supabase/.branches
 supabase/.temp
 .env.supabase
+
+# Tests (reportes generados)
+.vitest/          

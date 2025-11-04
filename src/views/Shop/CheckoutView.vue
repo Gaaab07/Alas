@@ -33,10 +33,30 @@
             <section class="mb-5">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="mb-0">Contacto</h4>
-                <button v-if="!isAuthenticated" @click="goToSignIn" class="btn btn-link text-decoration-underline p-0">
-                  Iniciar sesión
-                </button>
+                <div class="d-flex gap-2">
+                  <!-- Botón para usar información del perfil -->
+                  <button 
+                    v-if="isAuthenticated && hasProfileData" 
+                    @click="useProfileData"
+                    class="btn btn-sm btn-outline-success"
+                    title="Auto-completar con tu información guardada"
+                  >
+                    <i class="fa-solid fa-user-check me-1"></i>
+                    Usar mi información
+                  </button>
+                  <button v-if="!isAuthenticated" @click="goToSignIn" class="btn btn-link text-decoration-underline p-0">
+                    Iniciar sesión
+                  </button>
+                </div>
               </div>
+
+              <!-- Alerta si tiene información guardada -->
+              <div v-if="isAuthenticated && hasProfileData" class="alert alert-success mb-3">
+                <i class="fa-solid fa-sparkles me-2"></i>
+                Tienes información guardada en tu perfil. 
+                <a href="#" @click.prevent="useProfileData" class="alert-link">Click aquí para auto-completar todos los campos</a>
+              </div>
+
               <div class="form-group">
                 <input v-model="checkoutForm.email" type="email" class="form-control form-control-lg" placeholder="Email" required />
               </div>
@@ -50,7 +70,26 @@
 
             <!-- Dirección de envío -->
             <section class="mb-5">
-              <h4 class="mb-3">Dirección de envío</h4>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Dirección de envío</h4>
+                <!-- Botón para usar direcciones guardadas -->
+                <button 
+                  v-if="isAuthenticated && savedAddresses.length > 0" 
+                  @click="showSavedAddressesModal = true"
+                  class="btn btn-sm btn-outline-primary"
+                >
+                  <i class="fa-solid fa-address-book me-1"></i>
+                  Usar dirección guardada
+                </button>
+              </div>
+
+              <!-- Alerta si hay direcciones guardadas -->
+              <div v-if="isAuthenticated && savedAddresses.length > 0" class="alert alert-info mb-3">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                Tienes <strong>{{ savedAddresses.length }}</strong> dirección(es) guardada(s). 
+                <a href="#" @click.prevent="showSavedAddressesModal = true" class="alert-link">Usar una de ellas</a>
+              </div>
+
               <div class="row g-3">
                 <!-- País -->
                 <div class="col-12">
@@ -67,13 +106,15 @@
                 <div class="col-md-6">
                   <label class="form-label">Nombre *</label>
                   <input v-model="checkoutForm.firstName" type="text" class="form-control form-control-lg" 
-                    :class="{ 'is-invalid': errors.firstName }" placeholder="Nombre" @input="validateName('firstName')" required />
+                    :class="{ 'is-invalid': errors.firstName }" placeholder="Nombre" 
+                    @input="validateName('firstName')" @keypress="preventNumbers" required />
                   <div v-if="errors.firstName" class="invalid-feedback">{{ errors.firstName }}</div>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Apellidos *</label>
                   <input v-model="checkoutForm.lastName" type="text" class="form-control form-control-lg" 
-                    :class="{ 'is-invalid': errors.lastName }" placeholder="Apellidos" @input="validateName('lastName')" required />
+                    :class="{ 'is-invalid': errors.lastName }" placeholder="Apellidos" 
+                    @input="validateName('lastName')" @keypress="preventNumbers" required />
                   <div v-if="errors.lastName" class="invalid-feedback">{{ errors.lastName }}</div>
                 </div>
 
@@ -105,8 +146,9 @@
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label">Apartamento (opcional)</label>
-                  <input v-model="checkoutForm.apartment" type="text" class="form-control form-control-lg" placeholder="Apto, Dpto, Piso, etc." />
+                  <label class="form-label">Referencia (opcional)</label>
+                  <input v-model="checkoutForm.apartment" type="text" class="form-control form-control-lg" 
+                    placeholder="Frente al parque, cerca de..." @keypress="preventNumbers" />
                 </div>
 
                 <!-- Provincia/Distrito -->
@@ -123,7 +165,7 @@
                 <div class="col-md-6">
                   <label class="form-label">{{ districtLabel }}</label>
                   <input v-model="checkoutForm.district" type="text" class="form-control form-control-lg" 
-                    :placeholder="districtPlaceholder" :required="checkoutForm.country === 'PE'" />
+                    :placeholder="districtPlaceholder" @keypress="preventNumbers" :required="checkoutForm.country === 'PE'" />
                 </div>
 
                 <!-- Postal/Teléfono -->
@@ -139,7 +181,7 @@
                   <label class="form-label">Teléfono *</label>
                   <input v-model="checkoutForm.phone" type="tel" class="form-control form-control-lg" 
                     :class="{ 'is-invalid': errors.phone }" :placeholder="phonePlaceholder" 
-                    :maxlength="phoneMaxLength" @input="validatePhone" required />
+                    :maxlength="phoneMaxLength" @input="validatePhone" @keypress="preventLetters" required />
                   <div v-if="errors.phone" class="invalid-feedback">{{ errors.phone }}</div>
                   <small class="text-muted">{{ phoneHint }}</small>
                 </div>
@@ -205,7 +247,8 @@
                   <div class="col-12">
                     <label class="form-label">Nombre en la tarjeta *</label>
                     <input v-model="paymentForm.cardName" type="text" class="form-control form-control-lg" 
-                      :class="{ 'is-invalid': errors.cardName }" placeholder="JUAN PEREZ" @input="validateCardName" required />
+                      :class="{ 'is-invalid': errors.cardName }" placeholder="JUAN PEREZ" 
+                      @input="validateCardName" @keypress="preventNumbers" required />
                     <div v-if="errors.cardName" class="invalid-feedback">{{ errors.cardName }}</div>
                   </div>
 
@@ -294,6 +337,60 @@
       </div>
     </div>
 
+    <!-- Modal de direcciones guardadas -->
+    <div v-if="showSavedAddressesModal" class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-address-book me-2"></i>
+              Selecciona una dirección
+            </h5>
+            <button type="button" class="btn-close" @click="showSavedAddressesModal = false"></button>
+          </div>
+          <div class="modal-body">
+            <div v-if="loadingSavedAddresses" class="text-center py-4">
+              <div class="spinner-border text-primary"></div>
+              <p class="mt-2 text-muted">Cargando direcciones...</p>
+            </div>
+            <div v-else class="row g-3">
+              <div v-for="address in savedAddresses" :key="address.id" class="col-md-6">
+                <div 
+                  class="saved-address-card" 
+                  :class="{ 'selected': selectedSavedAddress?.id === address.id }"
+                  @click="selectSavedAddress(address)"
+                >
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-primary">{{ address.label }}</span>
+                    <i v-if="selectedSavedAddress?.id === address.id" class="fa-solid fa-check-circle text-success"></i>
+                  </div>
+                  <div>
+                    <strong>{{ address.full_name }}</strong><br>
+                    <small class="text-muted">
+                      {{ address.address }}<br>
+                      {{ address.district }}, {{ address.province }}<br>
+                      Tel: {{ address.phone }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showSavedAddressesModal = false">Cancelar</button>
+            <button 
+              type="button" 
+              class="btn btn-primary" 
+              @click="applySavedAddress"
+              :disabled="!selectedSavedAddress"
+            >
+              <i class="fa-solid fa-check me-2"></i>Usar esta dirección
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal de éxito -->
     <Transition name="fade">
       <div v-if="showSuccessModal" class="modal-overlay" @click="closeSuccessModal">
@@ -321,10 +418,30 @@ import { useCheckoutForm } from '@/composables/useCheckoutForm'
 import { useCheckoutValidation } from '@/composables/useCheckoutValidation'
 import { useCheckoutPayment } from '@/composables/useCheckoutPayment'
 import { formatShippingCost as formatCost } from '@/utils/shipping'
+import { supabase } from '@/supabase'
 import '@/assets/Styles/checkout.css'
 
+// Interfaces
+interface SavedAddress {
+  id: string
+  label: string
+  full_name: string
+  address: string
+  district: string
+  province: string
+  phone: string
+  postal_code?: string
+  country?: string
+}
+
 const cartStore = useCartStore()
-const { isAuthenticated, user } = useAuth()
+const { isAuthenticated, user, profile } = useAuth()
+
+// Direcciones guardadas
+const savedAddresses = ref<SavedAddress[]>([])
+const loadingSavedAddresses = ref(false)
+const showSavedAddressesModal = ref(false)
+const selectedSavedAddress = ref<SavedAddress | null>(null)
 
 // Formulario principal
 const {
@@ -371,6 +488,19 @@ const paymentForm = ref({
   cvv: ''
 })
 
+// Funciones de prevención de caracteres
+const preventNumbers = (event: KeyboardEvent) => {
+  if (/[0-9]/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
+const preventLetters = (event: KeyboardEvent) => {
+  if (!/[0-9+\-() ]/.test(event.key)) {
+    event.preventDefault()
+  }
+}
+
 // Costos
 const shippingCost = computed(() => {
   if (!selectedShippingOption.value) return 0
@@ -387,7 +517,7 @@ const shippingCostDisplay = computed(() =>
 
 const finalTotal = computed(() => cartStore.subtotal + shippingCost.value)
 
-// Pago (SIN hasErrors - se calcula internamente)
+// Pago
 const {
   isProcessing,
   showSuccessModal,
@@ -408,8 +538,105 @@ const {
   shippingCost,
   finalTotal,
   isFormValid
-  // ✅ hasErrors removido - se calcula dentro del composable
 )
+
+// Computed - Verificar si tiene datos en el perfil
+const hasProfileData = computed(() => {
+  if (!profile.value) return false
+  return !!(
+    profile.value.phone || 
+    profile.value.document_type || 
+    profile.value.country
+  )
+})
+
+// Usar información del perfil
+const useProfileData = () => {
+  if (!profile.value) return
+  
+  // Llenar nombre completo
+  if (profile.value.full_name) {
+    const nameParts = profile.value.full_name.split(' ')
+    checkoutForm.value.firstName = nameParts[0] || ''
+    checkoutForm.value.lastName = nameParts.slice(1).join(' ') || ''
+  }
+  
+  // Llenar teléfono
+  if (profile.value.phone) {
+    checkoutForm.value.phone = profile.value.phone
+  }
+  
+  // Llenar tipo y número de documento
+  if (profile.value.document_type) {
+    checkoutForm.value.documentType = profile.value.document_type
+    // Trigger validation después de cambiar el tipo
+    setTimeout(() => {
+      if (profile.value?.document_number) {
+        checkoutForm.value.documentId = profile.value.document_number
+      }
+    }, 100)
+  }
+  
+  // Llenar país
+  if (profile.value.country) {
+    checkoutForm.value.country = profile.value.country
+    // Esperar a que se actualicen las provincias
+    setTimeout(() => {
+      onCountryChange()
+    }, 50)
+  }
+}
+
+// Cargar direcciones guardadas
+const loadSavedAddresses = async () => {
+  if (!user.value) return
+  loadingSavedAddresses.value = true
+  try {
+    const { data, error } = await supabase
+      .from('user_addresses')
+      .select('*')
+      .eq('user_id', user.value.id)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    savedAddresses.value = data || []
+  } catch (error) {
+    console.error('Error loading saved addresses:', error)
+  } finally {
+    loadingSavedAddresses.value = false
+  }
+}
+
+// Seleccionar dirección guardada
+const selectSavedAddress = (address: SavedAddress) => {
+  selectedSavedAddress.value = address
+}
+
+// Aplicar dirección guardada al formulario
+const applySavedAddress = () => {
+  if (!selectedSavedAddress.value) return
+  
+  const address = selectedSavedAddress.value
+  const nameParts = address.full_name.split(' ')
+  
+  // Separar nombre y apellidos (primer palabra = nombre, resto = apellidos)
+  checkoutForm.value.firstName = nameParts[0] || ''
+  checkoutForm.value.lastName = nameParts.slice(1).join(' ') || ''
+  
+  // Llenar el resto de campos
+  checkoutForm.value.address = address.address
+  checkoutForm.value.apartment = address.label // Usar la referencia como apartamento
+  checkoutForm.value.district = address.district
+  checkoutForm.value.province = address.province
+  checkoutForm.value.phone = address.phone
+  
+  // Seleccionar Perú como país por defecto
+  checkoutForm.value.country = 'PE'
+  onCountryChange()
+  
+  showSavedAddressesModal.value = false
+  selectedSavedAddress.value = null
+}
 
 // Auto-seleccionar primer método de envío disponible
 watch(availableShippingOptions, (newOptions) => {
@@ -419,8 +646,45 @@ watch(availableShippingOptions, (newOptions) => {
   }
 })
 
-// Pre-llenar email si está logueado
-onMounted(() => {
-  if (user.value?.email) checkoutForm.value.email = user.value.email
+// Pre-llenar datos si está logueado
+onMounted(async () => {
+  // Llenar email automáticamente
+  if (user.value?.email) {
+    checkoutForm.value.email = user.value.email
+  }
+  
+  // NO auto-llenar datos del perfil automáticamente
+  // El usuario debe hacer click en "Usar mi información"
+  
+  // Cargar direcciones guardadas
+  if (isAuthenticated.value) {
+    await loadSavedAddresses()
+  }
 })
 </script>
+
+<style scoped>
+.saved-address-card {
+  border: 2px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 100%;
+}
+
+.saved-address-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+}
+
+.saved-address-card.selected {
+  border-color: #0d6efd;
+  background-color: #f0f7ff;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+}
+
+.modal.show {
+  display: block;
+}
+</style>

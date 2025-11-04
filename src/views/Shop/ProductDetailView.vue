@@ -134,10 +134,7 @@
               </span>
             </button>
             
-            <button class="btn btn-outline-secondary btn-lg w-100">
-              <i class="bi bi-heart me-2"></i>
-              Agregar a favoritos
-            </button>
+            
           </div>
 
           <Transition name="fade">

@@ -81,7 +81,7 @@
                 
                 <router-link 
                   v-if="profile?.role === 'admin'" 
-                  to="/admin" 
+                  to="/admin/products" 
                   class="profile-nav-item text-warning"
                 >
                   <i class="bi bi-shield-check me-2"></i>Panel Admin
@@ -97,6 +97,7 @@
           <div v-if="activeTab === 'info'" class="card">
             <div class="card-header bg-white">
               <h5 class="mb-0"><i class="bi bi-person me-2"></i>Información Personal</h5>
+              <small class="text-muted">Esta información se usará para rellenar automáticamente tus pedidos</small>
             </div>
             <div class="card-body">
               <form @submit.prevent="updateProfile">
@@ -124,6 +125,59 @@
                   </div>
                 </div>
 
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Tipo de Documento</label>
+                    <select v-model="form.document_type" class="form-select">
+                      <option value="">Seleccionar...</option>
+                      <option value="dni">DNI - Documento Nacional de Identidad</option>
+                      <option value="ce">Carné de Extranjería</option>
+                      <option value="passport">Pasaporte</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Número de Documento</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      v-model="form.document_number"
+                      placeholder="12345678"
+                      :maxlength="form.document_type === 'dni' ? 8 : 12"
+                    />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input 
+                      type="tel" 
+                      class="form-control" 
+                      v-model="form.phone"
+                      placeholder="+51 999 999 999"
+                      maxlength="15"
+                      @keypress="preventLetters"
+                    />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">País</label>
+                    <select v-model="form.country" class="form-select">
+                      <option value="">Seleccionar...</option>
+                      <option value="PE">Perú</option>
+                      <option value="AR">Argentina</option>
+                      <option value="CL">Chile</option>
+                      <option value="CO">Colombia</option>
+                      <option value="MX">México</option>
+                      <option value="US">Estados Unidos</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <strong>Tip:</strong> Completa toda tu información para que el proceso de compra sea más rápido
+                </div>
+
                 <button type="submit" class="btn btn-primary" :disabled="updating">
                   <span v-if="updating" class="spinner-border spinner-border-sm me-2"></span>
                   {{ updating ? 'Guardando...' : 'Guardar Cambios' }}
@@ -135,7 +189,10 @@
           <!-- Direcciones -->
           <div v-if="activeTab === 'addresses'" class="card">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Mis Direcciones</h5>
+              <div>
+                <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Mis Direcciones</h5>
+                <small class="text-muted">Guarda tus direcciones para usarlas rápidamente en tus compras</small>
+              </div>
               <button class="btn btn-sm btn-primary" @click="showAddressModal = true">
                 <i class="bi bi-plus-lg me-1"></i>Nueva Dirección
               </button>
@@ -162,20 +219,32 @@
                   <div class="address-card">
                     <div class="d-flex justify-content-between mb-2">
                       <span class="badge bg-primary">{{ address.label }}</span>
-                      <button 
-                        class="btn btn-sm btn-link text-danger p-0" 
-                        @click="deleteAddress(address.id)"
-                        :disabled="deletingAddress === address.id"
-                      >
-                        <i v-if="deletingAddress === address.id" class="bi bi-hourglass-split"></i>
-                        <i v-else class="bi bi-trash"></i>
-                      </button>
+                      <div class="d-flex gap-2">
+                        <button 
+                          class="btn btn-sm btn-link text-primary p-0" 
+                          @click="editAddress(address)"
+                          title="Editar"
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button 
+                          class="btn btn-sm btn-link text-danger p-0" 
+                          @click="deleteAddress(address.id)"
+                          :disabled="deletingAddress === address.id"
+                          title="Eliminar"
+                        >
+                          <i v-if="deletingAddress === address.id" class="bi bi-hourglass-split"></i>
+                          <i v-else class="bi bi-trash"></i>
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <strong>{{ address.full_name }}</strong><br>
                       <small class="text-muted">
                         {{ address.address }}<br>
                         {{ address.district }}, {{ address.province }}<br>
+                        <span v-if="address.postal_code">CP: {{ address.postal_code }}<br></span>
+                        <span v-if="address.country">{{ getCountryName(address.country) }}<br></span>
                         Tel: {{ address.phone }}
                       </small>
                     </div>
@@ -231,12 +300,12 @@
       </div>
     </div>
 
-    <!-- Modal para nueva dirección -->
+    <!-- Modal para nueva/editar dirección -->
     <div v-if="showAddressModal" class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Nueva Dirección</h5>
+            <h5 class="modal-title">{{ editingAddressId ? 'Editar Dirección' : 'Nueva Dirección' }}</h5>
             <button type="button" class="btn-close" @click="closeAddressModal"></button>
           </div>
           <div class="modal-body">
@@ -287,6 +356,29 @@
                 >
               </div>
             </div>
+            <div class="row">
+              <div class="col-6 mb-3">
+                <label class="form-label">Código Postal</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  v-model="newAddress.postal_code"
+                  placeholder="15001"
+                >
+              </div>
+              <div class="col-6 mb-3">
+                <label class="form-label">País</label>
+                <select v-model="newAddress.country" class="form-select">
+                  <option value="">Seleccionar...</option>
+                  <option value="PE">Perú</option>
+                  <option value="AR">Argentina</option>
+                  <option value="CL">Chile</option>
+                  <option value="CO">Colombia</option>
+                  <option value="MX">México</option>
+                  <option value="US">Estados Unidos</option>
+                </select>
+              </div>
+            </div>
             <div class="mb-3">
               <label class="form-label">Teléfono *</label>
               <input 
@@ -327,6 +419,8 @@ interface SavedAddress {
   district: string
   province: string
   phone: string
+  postal_code?: string
+  country?: string
 }
 
 // Composables
@@ -334,7 +428,13 @@ const { profile, user, getProfile } = useAuth()
 
 // State
 const activeTab = ref('info')
-const form = ref({ full_name: '' })
+const form = ref({ 
+  full_name: '',
+  phone: '',
+  document_type: '',
+  document_number: '',
+  country: ''
+})
 const passwordForm = ref({ newPassword: '', confirmPassword: '' })
 const savedAddresses = ref<SavedAddress[]>([])
 const loadingAddresses = ref(false)
@@ -342,6 +442,7 @@ const updating = ref(false)
 const updatingPassword = ref(false)
 const savingAddress = ref(false)
 const deletingAddress = ref<string | null>(null)
+const editingAddressId = ref<string | null>(null)
 const showAddressModal = ref(false)
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
@@ -352,7 +453,9 @@ const newAddress = ref({
   address: '',
   district: '',
   province: '',
-  phone: ''
+  phone: '',
+  postal_code: '',
+  country: ''
 })
 
 // Computed
@@ -384,7 +487,13 @@ const updateProfile = async () => {
   try {
     const { error } = await supabase
       .from('profiles')
-      .update({ full_name: form.value.full_name.trim() })
+      .update({ 
+        full_name: form.value.full_name.trim(),
+        phone: form.value.phone.trim(),
+        document_type: form.value.document_type,
+        document_number: form.value.document_number.trim(),
+        country: form.value.country
+      })
       .eq('id', user.value.id)
     
     if (error) throw error
@@ -421,6 +530,18 @@ const changePassword = async () => {
 }
 
 // Methods - Direcciones
+const getCountryName = (code: string) => {
+  const countries: Record<string, string> = {
+    'PE': '🇵🇪 Perú',
+    'AR': '🇦🇷 Argentina',
+    'CL': '🇨🇱 Chile',
+    'CO': '🇨🇴 Colombia',
+    'MX': '🇲🇽 México',
+    'US': '🇺🇸 Estados Unidos'
+  }
+  return countries[code] || code
+}
+
 const loadAddresses = async () => {
   if (!user.value) return
   loadingAddresses.value = true
@@ -444,22 +565,42 @@ const loadAddresses = async () => {
 const saveAddress = async () => {
   if (!user.value) return
   savingAddress.value = true
+  
   try {
-    const { error } = await supabase
-      .from('user_addresses')
-      .insert({
-        user_id: user.value.id,
-        label: newAddress.value.label.trim(),
-        full_name: newAddress.value.full_name.trim(),
-        address: newAddress.value.address.trim(),
-        district: newAddress.value.district.trim(),
-        province: newAddress.value.province.trim(),
-        phone: newAddress.value.phone.trim()
-      })
+    const addressData = {
+      label: newAddress.value.label.trim(),
+      full_name: newAddress.value.full_name.trim(),
+      address: newAddress.value.address.trim(),
+      district: newAddress.value.district.trim(),
+      province: newAddress.value.province.trim(),
+      phone: newAddress.value.phone.trim(),
+      postal_code: newAddress.value.postal_code.trim() || null,
+      country: newAddress.value.country || null
+    }
+
+    // 🔥 Si estamos editando
+    if (editingAddressId.value) {
+      const { error } = await supabase
+        .from('user_addresses')
+        .update(addressData)
+        .eq('id', editingAddressId.value)
+      
+      if (error) throw error
+      successMessage.value = 'Dirección actualizada correctamente'
+    } 
+    // 🔥 Si estamos creando nueva
+    else {
+      const { error } = await supabase
+        .from('user_addresses')
+        .insert({
+          user_id: user.value.id,
+          ...addressData
+        })
+      
+      if (error) throw error
+      successMessage.value = 'Dirección guardada correctamente'
+    }
     
-    if (error) throw error
-    
-    successMessage.value = 'Dirección guardada correctamente'
     closeAddressModal()
     await loadAddresses()
   } catch (error) {
@@ -468,6 +609,21 @@ const saveAddress = async () => {
   } finally {
     savingAddress.value = false
   }
+}
+
+const editAddress = (address: SavedAddress) => {
+  editingAddressId.value = address.id
+  newAddress.value = {
+    label: address.label,
+    full_name: address.full_name,
+    address: address.address,
+    district: address.district,
+    province: address.province,
+    phone: address.phone,
+    postal_code: address.postal_code || '',
+    country: address.country || ''
+  }
+  showAddressModal.value = true
 }
 
 const deleteAddress = async (id: string) => {
@@ -494,13 +650,16 @@ const deleteAddress = async (id: string) => {
 
 const closeAddressModal = () => {
   showAddressModal.value = false
+  editingAddressId.value = null  // 🔥 Agregar esta línea
   newAddress.value = {
     label: '',
     full_name: '',
     address: '',
     district: '',
     province: '',
-    phone: ''
+    phone: '',
+    postal_code: '',
+    country: ''
   }
 }
 
@@ -508,6 +667,10 @@ const closeAddressModal = () => {
 onMounted(async () => {
   if (profile.value) {
     form.value.full_name = profile.value.full_name || ''
+    form.value.phone = profile.value.phone || ''
+    form.value.document_type = profile.value.document_type || ''
+    form.value.document_number = profile.value.document_number || ''
+    form.value.country = profile.value.country || ''
   }
   await loadAddresses()
 })
