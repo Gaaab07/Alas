@@ -41,18 +41,6 @@
         
         <!-- Sección derecha con idioma, búsqueda, usuario y carrito -->
         <div class="d-flex align-items-center">
-          <!-- Selector de idioma -->
-          <!-- <div class="dropdown me-3">
-            <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="dropdown">
-              🇩🇪 PEN <i class="fa-solid fa-chevron-down ms-1"></i>
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#"> PEN</a></li>
-              <li><a class="dropdown-item" href="#">🇺🇸 USD</a></li>
-              <li><a class="dropdown-item" href="#">🇪🇸 EUR</a></li>
-            </ul>
-          </div> -->
-
           <!-- BOTÓN DE BÚSQUEDA ACTUALIZADO -->
           <button 
             @click="openSearch" 
@@ -193,10 +181,11 @@ const dropdownToggleRef = ref<HTMLElement>()
 // Usar el composable de autenticación
 const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
 
-// Nombre a mostrar - computed para que sea reactivo
+// 🔥 CORREGIDO: Nombre a mostrar usando first_name y last_name
 const displayName = computed(() => {
-  if (profile.value?.full_name) {
-    return profile.value.full_name
+  if (profile.value?.first_name) {
+    const fullName = `${profile.value.first_name} ${profile.value.last_name || ''}`.trim()
+    return fullName
   }
   if (user.value?.email) {
     return user.value.email.split('@')[0]

@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { useAuth } from '@/composables/useAuth'
-
-const { profile } = useAuth()
-</script>
-
 <template>
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Panel de Administración</h1>
@@ -13,7 +7,7 @@ const { profile } = useAuth()
     </p>
 
     <div v-else>
-      <p>Bienvenido administrador <b>{{ profile?.full_name }}</b></p>
+      <p>Bienvenido administrador <b>{{ fullName }}</b></p>
       <ul class="mt-4 list-disc list-inside">
         <li>Gestionar usuarios</li>
         <li>Gestionar productos</li>
@@ -22,3 +16,18 @@ const { profile } = useAuth()
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAuth } from '@/composables/useAuth'
+
+const { profile } = useAuth()
+
+
+const fullName = computed(() => {
+  if (!profile.value) return 'Administrador'
+  const first = profile.value.first_name || ''
+  const last = profile.value.last_name || ''
+  return `${first} ${last}`.trim() || 'Administrador'
+})
+</script>
