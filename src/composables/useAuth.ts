@@ -3,16 +3,22 @@ import { ref, computed } from 'vue'
 import { supabase } from '@/supabase'
 import type { User } from '@supabase/supabase-js'
 
-type Profile = {
+// 🔥 EXPORTAR el tipo Profile
+export type Profile = {
   id: string
-  full_name: string | null
-  avatar_url: string | null
+  first_name: string | null
+  last_name: string | null
   role: 'admin' | 'customer'
   created_at: string
   phone?: string | null
   document_type?: string | null
   document_number?: string | null
   country?: string | null
+  address?: string | null
+  apartment?: string | null
+  district?: string | null
+  province?: string | null
+  postal_code?: string | null
 }
 
 const user = ref<User | null>(null)
@@ -74,13 +80,18 @@ const createProfile = async (): Promise<Profile | null> => {
   try {
     const newProfile = {
       id: user.value.id,
-      full_name: user.value.user_metadata?.full_name || user.value.email?.split('@')[0] || 'Usuario',
-      avatar_url: user.value.user_metadata?.avatar_url || null,
+      first_name: user.value.user_metadata?.first_name || user.value.email?.split('@')[0] || 'Usuario',
+      last_name: user.value.user_metadata?.last_name || null,
       role: 'customer' as const,
       phone: null,
       document_type: null,
       document_number: null,
-      country: null
+      country: null,
+      address: null,
+      apartment: null,
+      district: null,
+      province: null,
+      postal_code: null
     }
 
     const { data, error } = await supabase
