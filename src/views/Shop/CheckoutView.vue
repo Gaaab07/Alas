@@ -550,41 +550,55 @@ const hasProfileData = computed(() => {
   )
 })
 
-// Usar información del perfil
 const useProfileData = () => {
   if (!profile.value) return
   
-  // Llenar nombre completo
-  if (profile.value.full_name) {
-    const nameParts = profile.value.full_name.split(' ')
-    checkoutForm.value.firstName = nameParts[0] || ''
-    checkoutForm.value.lastName = nameParts.slice(1).join(' ') || ''
+  // 🔥 Llenar nombres directamente
+  if (profile.value.first_name) {
+    checkoutForm.value.firstName = profile.value.first_name
+  }
+  if (profile.value.last_name) {
+    checkoutForm.value.lastName = profile.value.last_name
   }
   
-  // Llenar teléfono
-  if (profile.value.phone) {
-    checkoutForm.value.phone = profile.value.phone
-  }
-  
-  // Llenar tipo y número de documento
-  if (profile.value.document_type) {
-    checkoutForm.value.documentType = profile.value.document_type
-    // Trigger validation después de cambiar el tipo
-    setTimeout(() => {
-      if (profile.value?.document_number) {
-        checkoutForm.value.documentId = profile.value.document_number
-      }
-    }, 100)
-  }
-  
-  // Llenar país
+  // 🔥 LLENAR PAÍS Y FORZAR ACTUALIZACIÓN
   if (profile.value.country) {
     checkoutForm.value.country = profile.value.country
-    // Esperar a que se actualicen las provincias
-    setTimeout(() => {
-      onCountryChange()
-    }, 50)
+    onCountryChange()
   }
+  
+  // 🔥 LLENAR TIPO DE DOCUMENTO
+  if (profile.value.document_type) {
+    checkoutForm.value.documentType = profile.value.document_type
+    onDocumentTypeChange()
+  }
+  
+  // 🔥 ESPERAR Y LLENAR EL RESTO
+  setTimeout(() => {
+    if (profile.value?.phone) {
+      checkoutForm.value.phone = profile.value.phone
+    }
+    if (profile.value?.document_number) {
+      checkoutForm.value.documentId = profile.value.document_number
+    }
+    if (profile.value?.address) {
+      checkoutForm.value.address = profile.value.address
+    }
+    if (profile.value?.apartment) {
+      checkoutForm.value.apartment = profile.value.apartment
+    }
+    if (profile.value?.province) {
+      checkoutForm.value.province = profile.value.province
+    }
+    if (profile.value?.district) {
+      checkoutForm.value.district = profile.value.district
+    }
+    if (profile.value?.postal_code) {
+      checkoutForm.value.postalCode = profile.value.postal_code
+    }
+  }, 200)
+  
+  alert('✅ Información del perfil cargada. Revisa y completa los campos si es necesario.')
 }
 
 // Cargar direcciones guardadas
@@ -614,28 +628,48 @@ const selectSavedAddress = (address: SavedAddress) => {
 
 // Aplicar dirección guardada al formulario
 const applySavedAddress = () => {
-  if (!selectedSavedAddress.value) return
+   if (!selectedSavedAddress.value) return
   
   const address = selectedSavedAddress.value
   const nameParts = address.full_name.split(' ')
   
-  // Separar nombre y apellidos (primer palabra = nombre, resto = apellidos)
-  checkoutForm.value.firstName = nameParts[0] || ''
-  checkoutForm.value.lastName = nameParts.slice(1).join(' ') || ''
+  // 🔥 LLENAR NOMBRES (sin sobrescribir si ya hay datos del perfil)
+  if (!checkoutForm.value.firstName) {
+    checkoutForm.value.firstName = nameParts[0] || ''
+  }
+  if (!checkoutForm.value.lastName) {
+    checkoutForm.value.lastName = nameParts.slice(1).join(' ') || ''
+  }
   
-  // Llenar el resto de campos
-  checkoutForm.value.address = address.address
-  checkoutForm.value.apartment = address.label // Usar la referencia como apartamento
-  checkoutForm.value.district = address.district
-  checkoutForm.value.province = address.province
-  checkoutForm.value.phone = address.phone
-  
-  // Seleccionar Perú como país por defecto
-  checkoutForm.value.country = 'PE'
+  // 🔥 LLENAR PAÍS PRIMERO
+  const countryToSet = address.country || 'PE'
+  checkoutForm.value.country = countryToSet
   onCountryChange()
+  
+  // 🔥 ESPERAR Y LLENAR EL RESTO
+  setTimeout(() => {
+    // Llenar dirección
+    checkoutForm.value.address = address.address
+    checkoutForm.value.apartment = `Ref: ${address.label}`
+    checkoutForm.value.district = address.district
+    checkoutForm.value.province = address.province
+    
+    // Llenar teléfono solo si está vacío
+    if (!checkoutForm.value.phone && address.phone) {
+      checkoutForm.value.phone = address.phone
+    }
+    
+    // Llenar código postal
+    if (address.postal_code) {
+      checkoutForm.value.postalCode = address.postal_code
+    }
+  }, 250)
   
   showSavedAddressesModal.value = false
   selectedSavedAddress.value = null
+  
+  // 🔥 MOSTRAR MENSAJE DE CONFIRMACIÓN
+  alert('✅ Dirección guardada aplicada. Completa los campos restantes si es necesario.')
 }
 
 // Auto-seleccionar primer método de envío disponible
