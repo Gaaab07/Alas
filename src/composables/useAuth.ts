@@ -154,6 +154,12 @@ export const useAuth = () => {
   const isAdmin = computed(() => profile.value?.role === 'admin')
   const isCustomer = computed(() => profile.value?.role === 'customer')
   const isOwner = computed(() => profile.value?.role === 'owner')
+  
+  // ✅ AGREGAR hasAdminAccess - verifica si es admin u owner
+  const hasAdminAccess = computed(() => 
+    profile.value?.role === 'admin' || profile.value?.role === 'owner'
+  )
+
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -232,6 +238,7 @@ export const useAuth = () => {
     isAdmin,
     isOwner,
     isCustomer,
+    hasAdminAccess, // ✅ EXPORTAR hasAdminAccess
     isLoadingProfile,
     getProfile,
     refreshProfile,
