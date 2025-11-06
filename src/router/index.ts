@@ -102,7 +102,13 @@ const routes = [
         name: 'admin-products',
         component: () => import('@/views/admin/AdminProductsView.vue'),
         meta: { requiresAuth: true, requiresAdmin: true }
-      }
+      },
+      {
+        path: '/owner/users',
+        name: 'owner-users',
+        component: () => import('@/views/Owner/OwnerUsersView.vue'),
+        meta: { requiresAuth: true, requiresOwner: true }
+      } 
     ]
   },
   {
@@ -127,7 +133,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, _from, next) => {
-  const { isAuthenticated, isAdmin, loadUser, profile, isLoadingProfile } = useAuth()
+  const { isAuthenticated, isAdmin, isOwner, hasAdminAccess, loadUser, profile, isLoadingProfile } = useAuth()
 
   await loadUser()
 
@@ -141,13 +147,24 @@ router.beforeEach(async (to, _from, next) => {
     return next({ name: 'signin' })
   }
 
+  if (to.meta.requiresOwner) {
+    if (!profile.value) {
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await loadUser()
+    }
+
+    if (!isOwner.value) {
+      return next({ name: 'home' })
+    }
+  }
+
   if (to.meta.requiresAdmin) {
     if (!profile.value) {
       await new Promise(resolve => setTimeout(resolve, 500))
       await loadUser()
     }
 
-    if (!isAdmin.value) {
+    if (!hasAdminAccess.value) {
       return next({ name: 'home' })
     }
   }

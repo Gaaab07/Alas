@@ -37,6 +37,13 @@
               <i class="fa-solid fa-gear"></i> PANEL ADMIN
             </router-link>
           </li>
+
+           <!-- Botón Owner - Solo visible para owners -->
+          <li class="nav-item" v-if="isOwner">
+            <router-link to="/owner/users" class="nav-link text-danger fw-bold">
+              <i class="fa-solid fa-crown"></i> PANEL OWNER
+            </router-link>
+          </li>
         </ul>
         
         <!-- Sección derecha con idioma, búsqueda, usuario y carrito -->
@@ -113,7 +120,14 @@
                 >
                   <i class="fa-solid fa-gear me-1"></i> Panel de Administración
                 </button>
-                
+                <!-- Botón destacado de Panel Owner -->
+                <button 
+                  v-if="isOwner"
+                  class="btn btn-danger w-100 mb-3 fw-bold"
+                  @click="goToOwnerPanel"
+                  >
+                    <i class="fa-solid fa-crown me-1"></i> Panel Owner
+                </button>
                 <div class="d-flex justify-content-between mb-3">
                   <button 
                     class="btn btn-outline-primary flex-fill me-1"
@@ -179,7 +193,7 @@ const userDropdownRef = ref<HTMLElement>()
 const dropdownToggleRef = ref<HTMLElement>()
 
 // Usar el composable de autenticación
-const { user, profile, isAuthenticated, isAdmin, signOut } = useAuth()
+const { user, profile, isAuthenticated, isAdmin,isOwner, signOut } = useAuth()
 
 // 🔥 CORREGIDO: Nombre a mostrar usando first_name y last_name
 const displayName = computed(() => {
@@ -255,7 +269,10 @@ const goToAdminPanel = () => {
   router.push('/admin/products')
   closeDropdown()
 }
-
+const goToOwnerPanel = () => {
+  router.push('/owner/users')
+  closeDropdown()
+}
 // Ir a pedidos
 const goToOrders = () => {
   router.push('/orders')

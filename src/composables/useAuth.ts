@@ -8,7 +8,7 @@ export type Profile = {
   id: string
   first_name: string | null
   last_name: string | null
-  role: 'admin' | 'customer'
+  role: 'admin' | 'customer' | 'owner'
   created_at: string
   phone?: string | null
   document_type?: string | null
@@ -153,7 +153,7 @@ export const useAuth = () => {
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => profile.value?.role === 'admin')
   const isCustomer = computed(() => profile.value?.role === 'customer')
-
+  const isOwner = computed(() => profile.value?.role === 'owner')
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -230,6 +230,7 @@ export const useAuth = () => {
     profile,
     isAuthenticated,
     isAdmin,
+    isOwner,
     isCustomer,
     isLoadingProfile,
     getProfile,
