@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vitest/config' // 🔥 Cambio aquí
+import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
@@ -19,6 +19,15 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: './src/tests/setup.ts',
+    
+    // ✅ Opciones para mejor aislamiento
+    clearMocks: true,
+    mockReset: true,
+    restoreMocks: true,
+    
+    // ✅ Ejecutar tests de forma aislada
+    isolate: true,
+    
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
