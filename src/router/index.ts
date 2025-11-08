@@ -133,7 +133,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, _from, next) => {
-  const { isAuthenticated, isAdmin, isOwner, hasAdminAccess, loadUser, profile, isLoadingProfile } = useAuth()
+  const { isAuthenticated, isOwner, hasAdminAccess, loadUser, profile, isLoadingProfile } = useAuth()
 
   await loadUser()
 

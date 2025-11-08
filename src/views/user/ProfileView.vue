@@ -341,8 +341,15 @@ const isGoogleUser = computed(() => {
 })
 
 const userAvatar = computed(() => {
-  return user.value?.user_metadata?.picture || null
+  // Intentar obtener la foto de diferentes fuentes
+  return (
+    user.value?.user_metadata?.avatar_url ||
+    user.value?.user_metadata?.picture ||
+    user.value?.user_metadata?.picture_url ||
+    null
+  )
 })
+
 
 // Methods - Validaciones
 const preventNumbers = (event: KeyboardEvent) => {

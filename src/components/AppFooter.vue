@@ -54,7 +54,7 @@
           <ul class="footer-contact">
             <li>
               <i class="fa-solid fa-envelope me-2"></i>
-              <a href="mailto:alasperu@gmail.com">alasperu@gmail.com</a>
+              <a href="mailto:soportealasperu@gmail.com">soportealasperu@gmail.com</a>
             </li>
             <li>
               <i class="fa-brands fa-whatsapp me-2"></i>

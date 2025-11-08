@@ -343,7 +343,7 @@ const fetchUsers = async () => {
     users.value = (data as User[]) || []
     filteredUsers.value = (data as User[]) || []
     totalUsers.value = users.value.length
-  } catch (error) {
+  } catch  {
     errorMessage.value = 'Error al cargar usuarios.'
   } finally {
     loading.value = false
@@ -427,7 +427,7 @@ const updateUserRole = async () => {
     filterUsers()
     
     closeRoleModal()
-  } catch (error) {
+  } catch  {
     errorMessage.value = '❌ Error al actualizar el rol'
   } finally {
     updating.value = false
