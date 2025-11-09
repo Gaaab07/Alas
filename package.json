@@ -16,6 +16,7 @@
     "format": "prettier --write src/",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^22.16.5",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/coverage-v8": "^4.0.6",
     "@vitest/ui": "^4.0.6",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",

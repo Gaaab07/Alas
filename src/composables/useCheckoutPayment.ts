@@ -95,19 +95,68 @@ export function useCheckoutPayment(
     errors.value.cardName = (cleaned.length > 0 && cleaned.length < 3) ? 'Mínimo 3 caracteres' : ''
   }
 
-  const formatExpiryDate = () => {
-    let value = paymentForm.value.expiryDate.replace(/\D/g, '')
-    if (value.length >= 2) value = value.substring(0, 2) + '/' + value.substring(2, 4)
+const formatExpiryDate = () => {
+  // Obtener solo los números
+  let value = paymentForm.value.expiryDate.replace(/\D/g, '')
+  
+  // Limitar a 4 dígitos
+  value = value.substring(0, 4)
+  
+  if (value.length >= 2) {
+    let month = value.substring(0, 2)
+    let year = value.substring(2, 4)
+    
+    // 🔥 VALIDAR MES (01-12) - Solo si hay 2 dígitos completos
+    if (month.length === 2) {
+      const monthNum = parseInt(month)
+      if (monthNum > 12) {
+        month = '12'
+        value = month + year
+      } else if (monthNum === 0) {
+        month = '01'
+        value = month + year
+      }
+    }
+    
+    // 🔥 VALIDAR AÑO (no menor a 25) - Solo si hay 2 dígitos completos
+    if (year.length === 2) {
+      const yearNum = parseInt(year)
+      const currentYear = new Date().getFullYear() % 100
+      
+      if (yearNum < currentYear) {
+        year = currentYear.toString().padStart(2, '0')
+        value = month + year
+      }
+    }
+    
+    // Formatear con /
+    paymentForm.value.expiryDate = month + (year ? '/' + year : '')
+  } else {
+    // Si hay menos de 2 dígitos, solo mostrar lo que hay
     paymentForm.value.expiryDate = value
-    if (value.length === 5) {
-      const month = parseInt(value.split('/')[0])
-      errors.value.expiryDate = (month < 1 || month > 12) ? 'Mes inválido (01-12)' : ''
-    } else if (value.length > 0) {
-      errors.value.expiryDate = 'Formato: MM/AA'
+  }
+  
+  // 🔥 VALIDAR FORMATO COMPLETO Y FECHA NO EXPIRADA
+  if (paymentForm.value.expiryDate.length === 5) {
+    const [m, y] = paymentForm.value.expiryDate.split('/')
+    const monthNum = parseInt(m)
+    const yearNum = parseInt(y)
+    const currentYear = new Date().getFullYear() % 100
+    const currentMonth = new Date().getMonth() + 1
+    
+    if (yearNum < currentYear || (yearNum === currentYear && monthNum < currentMonth)) {
+      errors.value.expiryDate = 'Tarjeta expirada'
+    } else if (monthNum < 1 || monthNum > 12) {
+      errors.value.expiryDate = 'Mes inválido (01-12)'
     } else {
       errors.value.expiryDate = ''
     }
+  } else if (paymentForm.value.expiryDate.length > 0) {
+    errors.value.expiryDate = 'Formato: MM/AA'
+  } else {
+    errors.value.expiryDate = ''
   }
+}
 
   const validateCVV = () => {
     const value = paymentForm.value.cvv.replace(/\D/g, '').substring(0, 4)

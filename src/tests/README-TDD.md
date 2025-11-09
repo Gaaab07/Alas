@@ -430,14 +430,7 @@ it('debe prevenir cantidades negativas', () => {
 **Equipo ALAS**  
 Proyecto E-commerce | 2025
 
----
 
-## 📝 Notas Finales
 
-Este proyecto demuestra que incluso cuando TDD no se aplica desde el día 1, adoptar una cultura de testing aporta valor significativo. Los tests actuales:
 
-- ✅ Validan lógica de negocio crítica
-- ✅ Previenen regresiones
-- ✅ Documentan comportamiento esperado
-- ✅ Facilitan mantenimiento futuro
 

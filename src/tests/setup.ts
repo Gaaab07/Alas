@@ -18,6 +18,10 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
+// ✅ AGREGAR: Mock de alert y confirm (crítico para cart.ts)
+global.alert = vi.fn()
+global.confirm = vi.fn(() => true)
+
 // Mock de window.matchMedia (necesario para algunos tests de Bootstrap)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

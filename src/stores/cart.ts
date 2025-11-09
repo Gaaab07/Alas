@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/supabase'
 import type { Product } from '@/types/product'
@@ -7,10 +7,40 @@ export interface CartItem extends Product {
   quantity: number
 }
 
+// 🔥 Clave para localStorage
+const CART_STORAGE_KEY = 'alas_cart_items'
+
+// 🔥 Función para cargar carrito desde localStorage
+const loadCartFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY)
+    if (stored) {
+      return JSON.parse(stored)
+    }
+  } catch (error) {
+    console.error('Error loading cart from storage:', error)
+  }
+  return []
+}
+
+// 🔥 Función para guardar carrito en localStorage
+const saveCartToStorage = (items: CartItem[]) => {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+  } catch (error) {
+    console.error('Error saving cart to storage:', error)
+  }
+}
+
 export const useCartStore = defineStore('cart', () => {
-  // Estado
-  const items = ref<CartItem[]>([])
+  // 🔥 Cargar items desde localStorage al iniciar
+  const items = ref<CartItem[]>(loadCartFromStorage())
   const isCartOpen = ref(false)
+
+  // 🔥 Guardar automáticamente cuando cambie el carrito
+  watch(items, (newItems) => {
+    saveCartToStorage(newItems)
+  }, { deep: true })
 
   // Computed
   const itemsCount = computed(() => {

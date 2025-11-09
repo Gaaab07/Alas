@@ -7,8 +7,10 @@ Clonen el repositorio   `git clone https://github.com/Gaaab07/Alas.git`
 ```sh
 npm install
 ```
+# Variables de Entorno
+Clonar el archivo ```.env.template``` y renombrarlo a ```.env```
 
-### Compile and Hot-Reload for Development
+### levantar
 
 ```sh
 npm run dev

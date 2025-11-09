@@ -226,10 +226,10 @@
             <!-- Método de Pago -->
             <section class="mb-5">
               <h4 class="mb-3">Método de Pago</h4>
-              <div class="alert alert-info mb-3">
+              <!-- <div class="alert alert-info mb-3">
                 <i class="fa-solid fa-info-circle me-2"></i>
                 <strong>Modo Demo:</strong> Esta es una simulación. Usa los datos de prueba proporcionados.
-              </div>
+              </div> -->
               <div class="payment-card-form">
                 <div class="row g-3">
                   <div class="col-12">
@@ -255,7 +255,7 @@
                   <div class="col-md-6">
                     <label class="form-label">Fecha de expiración *</label>
                     <input v-model="paymentForm.expiryDate" type="text" class="form-control form-control-lg" 
-                      :class="{ 'is-invalid': errors.expiryDate }" placeholder="MM/AA" maxlength="5" @input="formatExpiryDate" required />
+                      :class="{ 'is-invalid': errors.expiryDate }" placeholder="MM/AA" maxlength="5" @input="formatExpiryDate"  required />
                     <div v-if="errors.expiryDate" class="invalid-feedback">{{ errors.expiryDate }}</div>
                     <small class="text-muted">💳 Prueba: <code class="bg-light px-2 py-1 rounded">12/25</code></small>
                   </div>
